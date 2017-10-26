@@ -14,9 +14,8 @@ const accountSecret = 'zk8di2ma5UDpLi6xUABwJPipSnQvI8FkB3XARLGqGkk=';
 ```
 
 ##Methods:
-Notice the use of './utils.js' and './enum.js' for the types:
+Notice the use of './enum.js' for the types:
 ```javascript
-const utils = require('./utils');
 const { type } = require('./enum');
 ```
 
@@ -65,28 +64,24 @@ sezionApi.getVideoLinksById(videoId);
 #### Create template:
 Create a new template
 ```javascript
-const { template } = require('./defaults');
-const templateObjectsList = [
-    {
-        type: type.IMAGE,
-        duration: 2000,
-    },
-    {
-        type: type.TEXT,
-        delay: 1000,
-        duration: 5000,
-    },
-    {
-        type: type.VIDEO,
-    },
-];
-const inputScriptsConfig = utils.createTemplateFromList(templateObjectsList);
-const templateData = Object.assign({}, template, {
-    name: "Template Name",
+const templateData = {
+    name: "Template Name 20",
     description: "Template Description",
-    inputScripts: utils.getTemplateShape(inputScriptsConfig),
-    videoInputs: utils.getObjectsTypeCountFromList(templateObjectsList),
-});
+    templateObjectsList: [
+        {
+            type: type.IMAGE,
+            duration: 2000,
+        },
+        {
+            type: type.TEXT,
+            delay: 1000,
+            duration: 5000,
+        },
+        {
+            type: type.VIDEO,
+        },
+    ],
+};
 sezionApi.createTemplate(templateData);
 ```
 

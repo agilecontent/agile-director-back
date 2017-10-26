@@ -1,5 +1,7 @@
 const httpClient = require('./httpClient');
 const { flatten } = require('lodash');
+const utils = require('./utils');
+const { template } = require('./defaults');
 
 const SezionApi = {
     // Templates
@@ -8,7 +10,16 @@ const SezionApi = {
             sezionAPI.Template_List((err, result) => resolve(result));
         });
     }),
-    createTemplate: (templateData) => new Promise((resolve, reject) => {
+    createTemplate: ({ name, description, templateObjectsList }) => new Promise((resolve, reject) => {
+        // Set correct template structure
+        const inputScriptsConfig = utils.createTemplateFromList(templateObjectsList);
+        const templateData = Object.assign({}, template, {
+            name,
+            description,
+            inputScripts: utils.getTemplateShape(inputScriptsConfig),
+            videoInputs: utils.getObjectsTypeCountFromList(templateObjectsList),
+        });
+
         httpClient.request((sezionAPI) => {
             sezionAPI.Template_New(
                 templateData,
