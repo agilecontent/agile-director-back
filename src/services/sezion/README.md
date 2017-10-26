@@ -2,6 +2,10 @@ SezionAPI++
 =====
 Module to help the creation of videos throught the SezionApi
 
+##Dependencies
+- "barrister": "^0.1.8"
+- "lodash": "^4.17.4"
+
 ##Config:
 Open httpClient file and set account credentials:
 ```javascript
