@@ -2,12 +2,12 @@ const request = require('request');
 const { createOptionsObject } = require('./utils');
 
 const MCApi = {
-    textClassification: (model, txt) => new Promise ((resolve) => {
+    textClassification: (options) => new Promise ((resolve) => {
         // Endpoint Url
         const endpoint = '/class-1.1';
 
         // Set options
-        const options = createOptionsObject({ model, txt }, endpoint);
+        const options = createOptionsObject(options, endpoint);
 
         // Request
         request.post(options, (error, response, body) => {
@@ -15,12 +15,12 @@ const MCApi = {
         });
     }),
 
-    topicsExtraction: (tt, txt, lang) => new Promise ((resolve) => {
+    topicsExtraction: (options) => new Promise ((resolve) => {
         // Endpoint Url
         const endpoint = '/topics-2.0';
 
         // Set options
-        const options = createOptionsObject({ tt, txt, lang }, endpoint);
+        const options = createOptionsObject(options, endpoint);
 
         // Request
         request.post(options, (error, response, body) => {

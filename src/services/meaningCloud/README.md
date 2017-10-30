@@ -18,13 +18,13 @@ Use the models file './models.js' to get the models types
 Text Classification assigns one or more classes to a document according to their content. 
 ```javascript
 const MCModels = require('./models');
-MCApi.textClassification(MCModels.spanish.IPTC, text);
+MCApi.textClassification({ model: MCModels.spanish.IPTC, txt: text });
 ```
 
 #### Topics Extraction:
 Topics Extraction is MeaningCloud's solution for extracting the different elements present in sources of information.
 ```javascript
 const MCTopics = require('./topics');
-MCApi.topicsExtraction(MCTopics.all, text, 'es');
+MCApi.topicsExtraction({tt: MCTopics.all, txt: text, lang: 'es' });
 ```
 
