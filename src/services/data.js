@@ -25,8 +25,8 @@ exports.processItemAsync = function (mediaURL, language) {
             getThumbnail,
             getDescription,
             getSubtitles,
-            processSyntaxis,
-            processSemantics,
+            /*processSyntaxis,
+            processSemantics,*/
         ], function (err, result) {
             if (err) return reject(err);
             return resolve(result);
