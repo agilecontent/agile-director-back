@@ -7,10 +7,10 @@ const MCApi = {
         const endpoint = '/class-1.1';
 
         // Set options
-        const options = createOptionsObject(options, endpoint);
+        const requestOptions = createOptionsObject(options, endpoint);
 
         // Request
-        request.post(options, (error, response, body) => {
+        request.post(requestOptions, (error, response, body) => {
             resolve(body);
         });
     }),
@@ -20,10 +20,10 @@ const MCApi = {
         const endpoint = '/topics-2.0';
 
         // Set options
-        const options = createOptionsObject(options, endpoint);
+        const requestOptions = createOptionsObject(options, endpoint);
 
         // Request
-        request.post(options, (error, response, body) => {
+        request.post(requestOptions, (error, response, body) => {
             resolve(body);
         });
     }),

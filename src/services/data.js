@@ -1,6 +1,8 @@
 'use strict';
 
 var Promise = require('bluebird');
+var MCApi = require('./meaningCloud');
+var MCModels = require('./meaningCloud/models');
 var elastic = Promise.promisifyAll(require('../elastic/data'));
 var collectionService = require('../services/collection');
 var slugs = require('../libs/slugs');
@@ -24,9 +26,8 @@ exports.processItemAsync = function (mediaURL, language) {
             downloadMedia,
             getThumbnail,
             getDescription,
+            getTags,
             getSubtitles,
-            /*processSyntaxis,
-            processSemantics,*/
         ], function (err, result) {
             if (err) return reject(err);
             return resolve(result);
@@ -61,6 +62,17 @@ exports.processItemAsync = function (mediaURL, language) {
             }).catch(function (err) {
                 cb(err);
             })
+        }
+
+        function getTags(data, cb) {
+            const txt = data.description;
+            MCApi.textClassification({ model: MCModels.spanish.IPTC, txt }).then(function (result) {
+                data.tags = JSON.parse(result);
+                console.log(data.tags);
+                cb(null, data);
+            }).catch(function (err) {
+                cb(err);
+            });
         }
 
         function getSubtitles(data, cb) {
