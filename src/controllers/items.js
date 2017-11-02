@@ -8,6 +8,7 @@ var elastic = Promise.promisifyAll(require('./../elastic/search'));
 var searchService = Promise.promisifyAll(require('./../services/search'));
 var statsService = Promise.promisifyAll(require('./../services/stats'));
 var collectionService = require('./../services/collection');
+var sezionApi = require('./../services/sezion');
 
 /*
  * get specific item
@@ -334,6 +335,14 @@ exports.stats = function getStats(req, res, next) {
         .then(function (result) {
             return res.json(result);
         })
+};
+
+exports.results = function getResults(req, res) {
+    sezionApi.getVideos()
+        .then(function (result) {
+            console.log(result);
+            return res.json(result);
+        });
 };
 
 

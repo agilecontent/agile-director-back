@@ -194,4 +194,9 @@ module.exports = function(router) {
    * get specific item
    */
   router.get(['/items/:name/:id'], items.get);
-}
+
+  /*
+  * search items
+  */
+  router.get(['/results'], items.results);
+};
