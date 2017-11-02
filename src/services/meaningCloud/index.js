@@ -11,7 +11,7 @@ const MCApi = {
 
         // Request
         request.post(requestOptions, (error, response, body) => {
-            resolve(body);
+            resolve(JSON.parse(body));
         });
     }),
 
@@ -24,7 +24,7 @@ const MCApi = {
 
         // Request
         request.post(requestOptions, (error, response, body) => {
-            resolve(body);
+            resolve(JSON.parse(body));
         });
     }),
 };
