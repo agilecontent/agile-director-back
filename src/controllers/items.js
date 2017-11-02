@@ -344,12 +344,4 @@ exports.results = function getResults(req, res) {
         });
 };
 
-exports.getVideo = function getVideo(req, res) {
-    var videoId = req.params.id;
-    sezionApi.getVideoLinksById(videoId)
-        .then(function (result) {
-            return res.json(result);
-        });
-};
-
 
