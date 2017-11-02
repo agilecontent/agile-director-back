@@ -340,7 +340,14 @@ exports.stats = function getStats(req, res, next) {
 exports.results = function getResults(req, res) {
     sezionApi.getVideos()
         .then(function (result) {
-            console.log(result);
+            return res.json(result);
+        });
+};
+
+exports.getVideo = function getVideo(req, res) {
+    var videoId = req.params.id;
+    sezionApi.getVideoLinksById(videoId)
+        .then(function (result) {
             return res.json(result);
         });
 };

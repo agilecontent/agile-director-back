@@ -199,4 +199,9 @@ module.exports = function(router) {
   * search items
   */
   router.get(['/results'], items.results);
+
+  /*
+  * get video
+  */
+  router.get(['/video/:id'], items.getVideo);
 };
