@@ -1,38 +1,42 @@
 'use strict';
+const Promise = require('bluebird');
+const MCApi = require('./meaningCloud');
+const MCModels = require('./meaningCloud/models');
+const { extractCategoryLabels } = require('./meaningCloud/utils');
+const elastic = Promise.promisifyAll(require('../elastic/data'));
+const collectionService = require('./collection');
+const slugs = require('../libs/slugs');
+const async = require('async');
+const _ = require('lodash');
+const dataHelper = require('../helpers/data');
+const collectionHelper = require('../helpers/collection');
 
-var Promise = require('bluebird');
-var MCApi = require('./meaningCloud');
-var MCModels = require('./meaningCloud/models');
-var { extractCategoryLabels } = require('./meaningCloud/utils');
-var elastic = Promise.promisifyAll(require('../elastic/data'));
-var collectionService = require('../services/collection');
-var slugs = require('../libs/slugs');
-var async = require('async');
-var _ = require('lodash');
-var dataHelper = require('../helpers/data');
-var collectionHelper = require('../helpers/collection');
+const mediaService = require('./media');
+const transcriptMediaService = require('./transcript');
+const linguabuzzService = require('./linguabuzz');
+const thumbnailsService = require('./thumbnails');
+const randomstring = require('randomstring');
 
-var mediaService = require('./media');
-var transcriptMediaService = require('./transcript');
-var linguabuzzService = require('./linguabuzz');
-var thumbnailsService = require('./thumbnails');
-var randomstring = require('randomstring');
+// Default language
+const language = 'es';
 
-exports.processItemAsync = function (mediaURL, language) {
+exports.processItemAsync = function (mediaURL, type) {
     return new Promise(function (resolve, reject) {
         const itemID = randomstring.generate(12);
         const data = {};
 
-        async.waterfall([
+        const processList = [
             downloadMedia,
-            getThumbnail,
             getDescription,
-            getTags,
-            getSubtitles,
-        ], function (err, result) {
-            if (err) return reject(err);
-            return resolve(result);
-        });
+            getTags
+        ];
+
+        if(type === 'video') {
+            processList.push(getThumbnail, getSubtitles);
+        }
+
+        // Process Media
+        async.waterfall(processList, (err, result) => err ? reject(err) : resolve(result));
 
         function downloadMedia(cb) {
             mediaService.getMediaAsync(itemID, mediaURL).then(function (result) {
@@ -85,45 +89,14 @@ exports.processItemAsync = function (mediaURL, language) {
                 cb(err);
             })
         }
-
-        function processSyntaxis(data, cb) {
-            if (language !== 'en') { // only works 'en'
-                cb(null, data);
-            }
-            else {
-                linguabuzzService.getSyntaxisAsync(itemID, data, {
-                    Thesaurus: '2000',
-                    LangIn: '1',
-                    LangOut: '1'
-                }).then(function (data) {
-                    cb(null, data);
-                }).catch(function (err) {
-                    cb(err);
-                })
-            }
-        }
-
-        function processSemantics(data, cb) {
-            linguabuzzService.getSemanticsAsync(itemID, data, {
-                Thesaurus: '573',
-                LangIn: language === 'en' ? '7' : '2',
-                LangOut: language === 'en' ? '7' : '2'
-            }).then(function (data) {
-                cb(null, data);
-            }).catch(function (err) {
-                cb(err);
-            })
-        }
     })
 };
-
 
 /**
  * get document
  */
 exports.addDocumentAsync = function (data) {
-    return exports.processItemAsync(data.body.videoURL, data.body.language).then(function (result) {
-        console.log(result);
+    return exports.processItemAsync(data.body.mediaURL, data.body.type).then(function (result) {
         data.body.mediaURL = result.mediaURL;
         data.body.image = result.image;
         data.body.transcript = result.transcript;
@@ -135,13 +108,13 @@ exports.addDocumentAsync = function (data) {
                 project: data.projectName
             })
             .then(function (collection) {
-                var helper = collectionHelper(collection);
+                const helper = collectionHelper(collection);
 
                 return slugs.setSlugsAsync(
                     helper.getName(),
                     helper.getSlugs(),
                     dataHelper.inputMapper(data.body, collection)
-                ).then(function (res) {
+                ).then(function () {
                     return elastic.addDocumentAsync({
                         index: helper.getIndex(),
                         type: helper.getType(),
@@ -172,21 +145,12 @@ exports.updateDocumentAsync = function (data) {
             project: data.projectName
         })
         .then(function (collection) {
-            var helper = collectionHelper(collection);
+            const helper = collectionHelper(collection);
             return slugs.setSlugsAsync(
                 helper.getName(),
                 helper.getSlugs(),
                 dataHelper.inputMapper(data.body, collection)
-            ).then(function (res) {
-
-                // dirty hack
-                // should be enabled should be ignored as additional configuratoin
-                // i.e. ignoredFields object
-                /*var temp = _.clone(collection);
-                 if (temp.extraSchema && temp.extraSchema.enabled) {
-                 delete temp.extraSchema.enabled;
-                 }*/
-
+            ).then(function () {
                 return elastic.updateDocumentAsync({
                     index: helper.getIndex(),
                     type: helper.getType(),
@@ -201,7 +165,7 @@ exports.updateDocumentAsync = function (data) {
         }).then(function (res) {
             return res;
         })
-}
+};
 
 /**
  * clean documents
@@ -212,13 +176,13 @@ exports.cleanDocumentsAsync = function (data) {
             project: data.projectName
         })
         .then(function (collection) {
-            var helper = collectionHelper(collection);
+            const helper = collectionHelper(collection);
             return elastic.cleanDocumentsAsync({
                 index: helper.getIndex(),
                 type: helper.getType()
             });
         })
-}
+};
 
 /**
  * delete document
@@ -229,14 +193,14 @@ exports.deleteDocumentAsync = function (data) {
             project: data.projectName
         })
         .then(function (collection) {
-            var helper = collectionHelper(collection);
+            const helper = collectionHelper(collection);
             return elastic.deleteDocumentAsync({
                 index: helper.getIndex(),
                 type: helper.getType(),
                 id: data.id
             })
         })
-}
+};
 
 /**
  * enable / disable item / document
@@ -249,7 +213,7 @@ exports.enableDocumentAsync = function (data) {
             name: data.name
         })
         .then(function (collection) {
-            var helper = collectionHelper(collection);
+            const helper = collectionHelper(collection);
             return elastic.updateDocumentAsync({
                 index: helper.getIndex(),
                 type: helper.getType(),
@@ -263,7 +227,7 @@ exports.enableDocumentAsync = function (data) {
         .then(function (res) {
             return res;
         })
-}
+};
 
 /**
  * get document
@@ -274,7 +238,7 @@ exports.getDocumentAsync = function (data) {
             project: data.projectName
         })
         .then(function (collection) {
-            var helper = collectionHelper(collection);
+            const helper = collectionHelper(collection);
             return elastic.getDocumentAsync({
                 index: helper.getIndex(),
                 type: helper.getType(),
@@ -282,21 +246,18 @@ exports.getDocumentAsync = function (data) {
             })
         })
         .then(function (res) {
-            var output = res._source;
-            //console.log(res);
-            //console.log(output);
+            const output = res._source;
             if (output.body) {
                 output.body.id = res._id;
             }
             return res._source;
         })
-}
+};
 
 /**
  * add multiple documents elastic
  * @param {Array} data documents
- * @param {String} projectName
- * @param {String} collectionName
+ * @param {object} data
  */
 exports.addDocumentsAsync = function (data) {
     return collectionService.findCollectionAsync({
@@ -304,14 +265,14 @@ exports.addDocumentsAsync = function (data) {
             project: data.projectName
         })
         .then(function (collection) {
-            var helper = collectionHelper(collection);
+            const helper = collectionHelper(collection);
 
             // adding slugs mapping to key value datastore
             return slugs.setSlugsAsync(
                 helper.getName(),
                 helper.getSlugs(),
                 dataHelper.inputMapper(data.body, collection)
-            ).then(function (res) {
+            ).then(function () {
                 return elastic.addDocumentsAsync({
                     index: helper.getIndex(),
                     type: helper.getType(),
@@ -328,37 +289,31 @@ exports.addDocumentsAsync = function (data) {
                 collection: data.collectionName
             }), 'took', 'errors', 'ids', 'collection');
         })
-}
+};
 
 /**
  * add all documents to elastic
- * @param {Array} documents full data
- * @param {String} projectName
- * @param {String} collectionName
- * @param {Integer} batchSize
+ * @param {Array} data full data
+ * @param {Function} callback
  * @return {String} inserted documents count
  */
 exports.addAllDocuments = function (data, callback) {
+    const documents = data.body;
+    const limit = documents.length;
+    let length = documents.length;
 
-    var documents = data.body;
-    var limit = documents.length;
-    var length = documents.length;
-
-    var batchSize = data.batchSize || 1000;
-
-    var count = 0;
+    const batchSize = data.batchSize || 1000;
 
     // needs to be refactored
-    var projectName = data.projectName;
-    var collectionName = data.collectionName;
+    const projectName = data.projectName;
+    const collectionName = data.collectionName;
 
     async.whilst(
         function () {
             return length > 0;
         },
         function (callback) {
-
-            var removed = documents.splice(0, batchSize);
+            const removed = documents.splice(0, batchSize);
             exports.addDocumentsAsync({
                 // needs to be refactored
                 projectName: projectName,
@@ -369,14 +324,14 @@ exports.addAllDocuments = function (data, callback) {
                 return callback(null, res);
             }).catch(function (err) {
                 return callback(err);
-            })
+            });
             length -= removed.length;
         },
-        function (err, res) {
+        function (err) {
             if (err) {
                 console.log(err);
             }
             callback(null, limit + ' documents added');
         }
     );
-}
+};
