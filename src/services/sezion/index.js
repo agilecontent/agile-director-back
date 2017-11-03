@@ -49,7 +49,20 @@ const SezionApi = {
     getVideos: () => new Promise((resolve) => {
         SezionApi.getTemplates().then((templates) => {
             const videosRequests = templates.map(({ id }) => SezionApi.getVideosFromTemplateId(id));
-            Promise.all(videosRequests).then((videos) => resolve(flatten(videos)));
+            Promise.all(videosRequests)
+                .then((videos) => flatten(videos))
+
+                // Set the video links
+                .then((videos) => videos.map((video) => {
+                    return SezionApi.getVideoLinksById(video.id).then((links) => {
+                        video.links = links[0];
+                        return video;
+                    })}
+                ))
+                .then((videosPromises) => {
+                    console.log(videosPromises);
+                    Promise.all(videosPromises).then(videos => resolve(videos))
+                });
         });
     }),
     getVideoLinksById: (videoId) => new Promise((resolve) => {
