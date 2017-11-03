@@ -59,9 +59,12 @@ const SezionApi = {
                         return video;
                     })}
                 ))
+
+                // Resolve and order videos
                 .then((videosPromises) => {
-                    console.log(videosPromises);
-                    Promise.all(videosPromises).then(videos => resolve(videos))
+                    Promise.all(videosPromises).then(videos => {
+                        resolve(videos.sort(utils.orderVideosComparer));
+                    })
                 });
         });
     }),
