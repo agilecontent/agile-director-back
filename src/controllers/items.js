@@ -345,5 +345,20 @@ exports.results = function getResults(req, res) {
 };
 
 exports.createNewVideo = function getResults(req, res) {
-   res.json({test: 1});
+    console.log(req.body);
+
+    const videoData = {
+        name: "Sezion video1",
+        description: "Creating a new video",
+        inputMedias: [{
+            inputID: "video1",
+            type: 'video',
+            http: 'http://res.cloudinary.com/dgiww3flq/video/upload/v1509378628/jzpn9q44uddh7tndmxqm.mp4',
+        }],
+    };
+
+    sezionApi.newVideo(videoData, '59ef17954a03f1ff612b3ec3')
+        .then(function (result) {
+            return res.json(result);
+        });
 };
