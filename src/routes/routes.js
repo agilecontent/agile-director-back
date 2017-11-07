@@ -199,4 +199,9 @@ module.exports = function(router) {
   * search items
   */
   router.get(['/results'], items.results);
+
+  /*
+  * Create new video
+  */
+  router.post(['/new-video'], items.createNewVideo);
 };

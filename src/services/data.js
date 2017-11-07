@@ -27,13 +27,11 @@ exports.processItemAsync = function (mediaURL, type) {
 
         const processList = [
             downloadMedia,
+            getThumbnail,
             getDescription,
-            getTags
+            getTags,
+            getSubtitles
         ];
-
-        if(type === 'video') {
-            processList.push(getThumbnail, getSubtitles);
-        }
 
         // Process Media
         async.waterfall(processList, (err, result) => err ? reject(err) : resolve(result));

@@ -344,4 +344,6 @@ exports.results = function getResults(req, res) {
         });
 };
 
-
+exports.createNewVideo = function getResults(req, res) {
+   res.json({test: 1});
+};
