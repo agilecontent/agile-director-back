@@ -50,7 +50,8 @@ module.exports = {
         const itemConfig = {
             inputID: `object-${index}`,
             http: item.http,
-            type: item.type
+            type: item.type,
+            name: item.type + 'item'
         };
         inputMedias.push(itemConfig);
         return inputMedias;
