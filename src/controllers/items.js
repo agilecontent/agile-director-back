@@ -9,6 +9,7 @@ var searchService = Promise.promisifyAll(require('./../services/search'));
 var statsService = Promise.promisifyAll(require('./../services/stats'));
 var collectionService = require('./../services/collection');
 var sezionApi = require('./../services/sezion');
+var utils = require('./../services/sezion/utils');
 
 /*
  * get specific item
@@ -345,16 +346,17 @@ exports.results = function getResults(req, res) {
 };
 
 exports.createNewVideo = function getResults(req, res) {
-    console.log(req.body);
-
+    const {
+        name = 'Name',
+        description = 'Description',
+        items,
+    } = req.body;
+    const inputMedias = utils.createInputMediasShape(items);
+    console.log(inputMedias);
     const videoData = {
-        name: "Sezion video1",
-        description: "Creating a new video",
-        inputMedias: [{
-            inputID: "video1",
-            type: 'video',
-            http: 'http://res.cloudinary.com/dgiww3flq/video/upload/v1509378628/jzpn9q44uddh7tndmxqm.mp4',
-        }],
+        name,
+        description,
+        inputMedias,
     };
 
     sezionApi.newVideo(videoData, '59ef17954a03f1ff612b3ec3')

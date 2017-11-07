@@ -45,5 +45,12 @@ module.exports = {
         a = new Date(a.date);
         b = new Date(b.date);
         return a > b ? -1 : a < b ? 1 : 0;
-    }
+    },
+    createInputMediasShape: (items) => items.reduce((inputMedias, item, index) => {
+        const itemConfig = {
+            id: `object-${index}`,
+            http: item.http,
+        };
+        inputMedias.push(itemConfig);
+    }, []),
 };
