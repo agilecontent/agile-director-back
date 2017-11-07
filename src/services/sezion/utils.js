@@ -52,5 +52,6 @@ module.exports = {
             http: item.http,
         };
         inputMedias.push(itemConfig);
+        return inputMedias;
     }, []),
 };
