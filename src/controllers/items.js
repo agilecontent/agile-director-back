@@ -351,6 +351,7 @@ exports.createNewVideo = function getResults(req, res) {
         description = 'Description',
         items,
     } = req.body;
+    console.log(req.body);
     const inputMedias = utils.createInputMediasShape(items);
     console.log(inputMedias);
     const videoData = {
