@@ -353,7 +353,6 @@ exports.createNewVideo = function getResults(req, res) {
         inputMedias: [{
             inputID: "video1",
             type: 'video',
-            duration: 3000,
             http: 'http://res.cloudinary.com/dgiww3flq/video/upload/v1509378628/jzpn9q44uddh7tndmxqm.mp4',
         }],
     };
