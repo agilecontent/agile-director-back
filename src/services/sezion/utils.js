@@ -48,7 +48,7 @@ module.exports = {
     },
     createInputMediasShape: (items) => items.reduce((inputMedias, item, index) => {
         const itemConfig = {
-            id: `object-${index}`,
+            inputID: `object-${index}`,
             http: item.http,
         };
         inputMedias.push(itemConfig);
