@@ -28,7 +28,7 @@ module.exports = {
         // Create object configuration
         const objectConfig = {
             [obj.type]: {
-                id: `object-${index}`,
+                id: `object${index}`,
                 play,
             },
         };
@@ -48,7 +48,7 @@ module.exports = {
     },
     createInputMediasShape: (items) => items.reduce((inputMedias, item, index) => {
         const itemConfig = {
-            inputID: `object-${index}`,
+            inputID: `object${index}`,
             http: item.http,
             type: item.type,
             name: item.type + 'item'
