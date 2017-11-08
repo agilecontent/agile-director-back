@@ -48,7 +48,8 @@ module.exports = {
                 [type.TEXT]: {
                     id: `object${index}text`,
                     play,
-                    zIndex: 3
+                    zIndex: 3,
+                    duration: obj.textDuration ? parseInt(obj.textDuration) : `object${index}.duration`
                 },
             };
 
