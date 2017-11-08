@@ -23,7 +23,9 @@ module.exports = {
         const start = prevObject ? `${prevObject[getPrevObjectType(prevObject)].id}.end` : 0;
 
         // Set play property depending on delay configuration
-        const play = obj.delay ? `${start}+${obj.delay}` : start;
+        const play = obj.delay
+            ? start ? `${start}+${obj.delay}`: obj.delay
+            : start;
 
         // Create object configuration
         const objectConfig = {
