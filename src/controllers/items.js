@@ -361,6 +361,8 @@ exports.createNewVideo = function getResults(req, res) {
 
     // Create custom template for each video configuration
     sezionApi.createTemplate({ name, description, templateObjectsList }).then((templateID) => {
+        console.log('TEMPLATE ID');
+        console.log(templateID);
         const videoData = {
             name,
             description,
