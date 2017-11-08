@@ -24,7 +24,7 @@ module.exports = {
 
         // Set play property depending on delay configuration
         const play = obj.delay
-            ? start ? `${start}+${obj.delay}`: obj.delay
+            ? start ? `${start}+${obj.delay}`: parseInt(obj.delay)
             : start;
 
         // Create object configuration
@@ -37,7 +37,7 @@ module.exports = {
 
         // Set object duration
         if (obj.duration) {
-            objectConfig[obj.type].duration = obj.duration;
+            objectConfig[obj.type].duration = parseInt(obj.duration);
         }
 
         template.push(objectConfig);
