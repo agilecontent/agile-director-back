@@ -46,8 +46,9 @@ module.exports = {
             // Create object configuration
             const objectConfig = {
                 [type.TEXT]: {
-                    id: `object${index + 1}`,
+                    id: `object${index}text`,
                     play,
+                    zIndex: 3
                 },
             };
 
@@ -78,7 +79,7 @@ module.exports = {
 
         if(item.text) {
             const itemTextConfig = {
-                inputID: `object${index + 1}`,
+                inputID: `object${index}text`,
                 text: item.text,
                 type: type.TEXT,
                 name: type.TEXT + 'item'
