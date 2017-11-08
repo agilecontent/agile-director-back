@@ -351,17 +351,25 @@ exports.createNewVideo = function getResults(req, res) {
         description = 'Description',
         items,
     } = req.body;
-    console.log(req.body);
-    const inputMedias = utils.createInputMediasShape(items);
-    console.log(inputMedias);
-    const videoData = {
-        name,
-        description,
-        inputMedias,
-    };
 
-    sezionApi.newVideo(videoData, '59ef17954a03f1ff612b3ec3')
-        .then(function (result) {
-            return res.json(result);
-        });
+    // Create objects shape to match sezionAPi
+    const inputMedias = utils.createInputMediasShape(items);
+    const templateObjectsList = utils.createTemplateFromList(inputMedias);
+
+    console.log(inputMedias);
+    console.log(templateObjectsList);
+
+    // Create custom template for each video configuration
+    sezionApi.createTemplate({ name, description, templateObjectsList }).then((templateID) => {
+        const videoData = {
+            name,
+            description,
+            inputMedias,
+        };
+
+        sezionApi.newVideo(videoData, templateID)
+            .then(function (result) {
+                return res.json(result);
+            });
+    });
 };
