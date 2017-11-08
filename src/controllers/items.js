@@ -354,13 +354,9 @@ exports.createNewVideo = function getResults(req, res) {
 
     // Create objects shape to match sezionAPi
     const inputMedias = utils.createInputMediasShape(items);
-    const templateObjectsList = utils.createTemplateFromList(inputMedias);
-
-    console.log(inputMedias);
-    console.log(templateObjectsList);
 
     // Create custom template for each video configuration
-    sezionApi.createTemplate({ name, description, templateObjectsList }).then((templateID) => {
+    sezionApi.createTemplate({ name, description, templateObjectsList: items }).then((templateID) => {
         console.log('TEMPLATE ID');
         console.log(templateID);
         const videoData = {
