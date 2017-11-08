@@ -20,6 +20,9 @@ const SezionApi = {
             videoInputs: utils.getObjectsTypeCountFromList(templateObjectsList),
         });
 
+        console.log('TEMPLATE DATA');
+        console.log(templateData);
+
         httpClient.request((sezionAPI) => {
             sezionAPI.Template_New(
                 templateData,
