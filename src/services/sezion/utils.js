@@ -14,6 +14,7 @@ module.exports = {
     },
     getTemplateShape: (template) => [JSON.stringify(template)],
     createTemplateFromList: (objectsList) => objectsList.reduce((template, obj, index) => {
+        console.log(obj);
         const getPrevObjectType = (prevObject) => Object.keys(prevObject)[0];
 
         // Get previous object
@@ -65,6 +66,7 @@ module.exports = {
         return a > b ? -1 : a < b ? 1 : 0;
     },
     createInputMediasShape: (items) => items.reduce((inputMedias, item, index) => {
+        console.log(item);
         const itemConfig = {
             inputID: `object${index}`,
             http: item.http,
