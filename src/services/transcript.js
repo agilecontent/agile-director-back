@@ -20,6 +20,11 @@ exports.getTranscriptAsync = function (itemID, input, options) {
 
     return new Promise(function (resolve, reject) {
 
+        if (options.typo === 'image') {
+            resolve();
+            return;
+        }
+
         if (!fs.existsSync(input)) {
             reject(new Error(`${input} not found.`))
         }

@@ -20,6 +20,12 @@ exports.getThumbnailAsync = function (itemID, url, options) {
 
     return new Promise(function (resolve, reject) {
 
+        if (options.typo === 'image' || options.typo === 'audio') {
+            // do nothing.
+            resolve();
+            return;
+        }
+
         if (!fs.existsSync(options.output)) {
             fs.mkdirSync(options.output);
         }

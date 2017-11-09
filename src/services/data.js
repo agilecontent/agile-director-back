@@ -1,43 +1,41 @@
 'use strict';
-const Promise = require('bluebird');
-const MCApi = require('./meaningCloud');
-const MCModels = require('./meaningCloud/models');
-const { extractCategoryLabels } = require('./meaningCloud/utils');
-const elastic = Promise.promisifyAll(require('../elastic/data'));
-const collectionService = require('./collection');
-const slugs = require('../libs/slugs');
-const async = require('async');
-const _ = require('lodash');
-const dataHelper = require('../helpers/data');
-const collectionHelper = require('../helpers/collection');
 
-const mediaService = require('./media');
-const transcriptMediaService = require('./transcript');
-const linguabuzzService = require('./linguabuzz');
-const thumbnailsService = require('./thumbnails');
-const randomstring = require('randomstring');
+var Promise = require('bluebird');
+var elastic = Promise.promisifyAll(require('../elastic/data'));
+var collectionService = require('../services/collection');
+var slugs = require('../libs/slugs');
+var async = require('async');
+var _ = require('lodash');
+var dataHelper = require('../helpers/data');
+var collectionHelper = require('../helpers/collection');
 
-// Default language
-const language = 'es';
+var mediaService = require('./media');
+var transcriptMediaService = require('./transcript');
+/*var linguabuzzService = require('./linguabuzz');*/
+var thumbnailsService = require('./thumbnails');
+var randomstring = require('randomstring');
+var MCApi = require('./meaningCloud');
+var MCModels = require('./meaningCloud/models');
+var {extractCategoryLabels} = require('./meaningCloud/utils');
 
-exports.processItemAsync = function (mediaURL, type) {
+exports.processItemAsync = function (mediaURL, language, typo, tags) {
     return new Promise(function (resolve, reject) {
         const itemID = randomstring.generate(12);
         const data = {};
 
-        const processList = [
+        async.waterfall([
             downloadMedia,
             getThumbnail,
             getDescription,
-            getTags,
-            getSubtitles
-        ];
-
-        // Process Media
-        async.waterfall(processList, (err, result) => err ? reject(err) : resolve(result));
+            getSubtitles,
+            getTags
+        ], function (err, result) {
+            if (err) return reject(err);
+            return resolve(result);
+        });
 
         function downloadMedia(cb) {
-            mediaService.getMediaAsync(itemID, mediaURL).then(function (result) {
+            mediaService.getMediaAsync(itemID, mediaURL, {typo: typo}).then(function (result) {
                 data.tmpFile = result.tmpFile;
                 data.mediaURL = result.mediaURL;
                 cb(null, data);
@@ -47,8 +45,8 @@ exports.processItemAsync = function (mediaURL, type) {
         }
 
         function getThumbnail(data, cb) {
-            thumbnailsService.getThumbnailAsync(itemID, mediaURL).then(function (result) {
-                data.image = result;
+            thumbnailsService.getThumbnailAsync(itemID, mediaURL, {typo: typo}).then(function (result) {
+                data.image = result ? result : typo === 'image' ? data.mediaURL : '';
                 cb(null, data);
             }).catch(function (err) {
                 cb(err);
@@ -58,7 +56,8 @@ exports.processItemAsync = function (mediaURL, type) {
         function getDescription(data, cb) {
             transcriptMediaService.getTranscriptAsync(itemID, data.tmpFile, {
                 language: language,
-                format: 'raw'
+                format: 'raw',
+                typo: typo
             }).then(function (result) {
                 data.description = result;
                 cb(null, data);
@@ -67,19 +66,10 @@ exports.processItemAsync = function (mediaURL, type) {
             })
         }
 
-        function getTags(data, cb) {
-            const txt = data.description;
-            MCApi.textClassification({ model: MCModels.spanish.IPTC, txt }).then(function (result) {
-                data.tags = _.union(data.tags, extractCategoryLabels(result.categories_labels));
-                cb(null, data);
-            }).catch(function (err) {
-                cb(err);
-            });
-        }
-
         function getSubtitles(data, cb) {
             transcriptMediaService.getTranscriptAsync(itemID, data.tmpFile, {
-                language: language
+                language: language,
+                typo: typo
             }).then(function (result) {
                 data.transcript = result;
                 cb(null, data);
@@ -87,32 +77,76 @@ exports.processItemAsync = function (mediaURL, type) {
                 cb(err);
             })
         }
+
+        function getTags(data, cb) {
+            MCApi.textClassification({
+                model: MCModels.spanish.IPTC,
+                txt: data.description
+            }).then(function (result) {
+                data.tags = _.union(tags, extractCategoryLabels(result.categories_labels));
+                cb(null, data);
+            }).catch(function (err) {
+                cb(err);
+            });
+        }
+
+        /*function processSyntaxis(data, cb) {
+            if (language !== 'en') { // only works 'en'
+                cb(null, data);
+            }
+            else {
+                linguabuzzService.getSyntaxisAsync(itemID, data, {
+                    Thesaurus: '2000',
+                    LangIn: '1',
+                    LangOut: '1'
+                }).then(function (data) {
+                    cb(null, data);
+                }).catch(function (err) {
+                    cb(err);
+                })
+            }
+        }
+
+        function processSemantics(data, cb) {
+            linguabuzzService.getSemanticsAsync(itemID, data, {
+                Thesaurus: '573',
+                LangIn: language === 'en' ? '7' : '2',
+                LangOut: language === 'en' ? '7' : '2'
+            }).then(function (data) {
+                cb(null, data);
+            }).catch(function (err) {
+                cb(err);
+            })
+        }*/
     })
 };
+
 
 /**
  * get document
  */
 exports.addDocumentAsync = function (data) {
-    return exports.processItemAsync(data.body.mediaURL, data.body.type).then(function (result) {
+    return exports.processItemAsync(data.body.videoURL, data.body.language, data.body.typo, data.body.tags).then(function (result) {
         data.body.mediaURL = result.mediaURL;
         data.body.image = result.image;
         data.body.transcript = result.transcript;
         data.body.description = result.description;
         data.body.metas = result.metas;
+        data.body.typo = result.typo;
+        data.body.tags = result.tags;
 
         collectionService.findCollectionAsync({
-                name: data.collectionName,
-                project: data.projectName
-            })
+            name: data.collectionName,
+            project: data.projectName
+        })
             .then(function (collection) {
-                const helper = collectionHelper(collection);
+                var helper = collectionHelper(collection);
 
                 return slugs.setSlugsAsync(
                     helper.getName(),
                     helper.getSlugs(),
                     dataHelper.inputMapper(data.body, collection)
-                ).then(function () {
+                ).then(function (res) {
                     return elastic.addDocumentAsync({
                         index: helper.getIndex(),
                         type: helper.getType(),
@@ -132,23 +166,32 @@ exports.addDocumentAsync = function (data) {
     }).catch(function (err) {
         console.log(err);
     })
-};
+}
 
 /**
  * update document
  */
 exports.updateDocumentAsync = function (data) {
     return collectionService.findCollectionAsync({
-            name: data.collectionName,
-            project: data.projectName
-        })
+        name: data.collectionName,
+        project: data.projectName
+    })
         .then(function (collection) {
-            const helper = collectionHelper(collection);
+            var helper = collectionHelper(collection);
             return slugs.setSlugsAsync(
                 helper.getName(),
                 helper.getSlugs(),
                 dataHelper.inputMapper(data.body, collection)
-            ).then(function () {
+            ).then(function (res) {
+
+                // dirty hack
+                // should be enabled should be ignored as additional configuratoin
+                // i.e. ignoredFields object
+                /*var temp = _.clone(collection);
+                 if (temp.extraSchema && temp.extraSchema.enabled) {
+                 delete temp.extraSchema.enabled;
+                 }*/
+
                 return elastic.updateDocumentAsync({
                     index: helper.getIndex(),
                     type: helper.getType(),
@@ -163,42 +206,42 @@ exports.updateDocumentAsync = function (data) {
         }).then(function (res) {
             return res;
         })
-};
+}
 
 /**
  * clean documents
  */
 exports.cleanDocumentsAsync = function (data) {
     return collectionService.findCollectionAsync({
-            name: data.collectionName,
-            project: data.projectName
-        })
+        name: data.collectionName,
+        project: data.projectName
+    })
         .then(function (collection) {
-            const helper = collectionHelper(collection);
+            var helper = collectionHelper(collection);
             return elastic.cleanDocumentsAsync({
                 index: helper.getIndex(),
                 type: helper.getType()
             });
         })
-};
+}
 
 /**
  * delete document
  */
 exports.deleteDocumentAsync = function (data) {
     return collectionService.findCollectionAsync({
-            name: data.collectionName,
-            project: data.projectName
-        })
+        name: data.collectionName,
+        project: data.projectName
+    })
         .then(function (collection) {
-            const helper = collectionHelper(collection);
+            var helper = collectionHelper(collection);
             return elastic.deleteDocumentAsync({
                 index: helper.getIndex(),
                 type: helper.getType(),
                 id: data.id
             })
         })
-};
+}
 
 /**
  * enable / disable item / document
@@ -208,10 +251,10 @@ exports.enableDocumentAsync = function (data) {
         throw new Error('item id is missing')
     }
     return collectionService.findCollectionAsync({
-            name: data.name
-        })
+        name: data.name
+    })
         .then(function (collection) {
-            const helper = collectionHelper(collection);
+            var helper = collectionHelper(collection);
             return elastic.updateDocumentAsync({
                 index: helper.getIndex(),
                 type: helper.getType(),
@@ -225,18 +268,18 @@ exports.enableDocumentAsync = function (data) {
         .then(function (res) {
             return res;
         })
-};
+}
 
 /**
  * get document
  */
 exports.getDocumentAsync = function (data) {
     return collectionService.findCollectionAsync({
-            name: data.collectionName,
-            project: data.projectName
-        })
+        name: data.collectionName,
+        project: data.projectName
+    })
         .then(function (collection) {
-            const helper = collectionHelper(collection);
+            var helper = collectionHelper(collection);
             return elastic.getDocumentAsync({
                 index: helper.getIndex(),
                 type: helper.getType(),
@@ -244,33 +287,36 @@ exports.getDocumentAsync = function (data) {
             })
         })
         .then(function (res) {
-            const output = res._source;
+            var output = res._source;
+            //console.log(res);
+            //console.log(output);
             if (output.body) {
                 output.body.id = res._id;
             }
             return res._source;
         })
-};
+}
 
 /**
  * add multiple documents elastic
  * @param {Array} data documents
- * @param {object} data
+ * @param {String} projectName
+ * @param {String} collectionName
  */
 exports.addDocumentsAsync = function (data) {
     return collectionService.findCollectionAsync({
-            name: data.collectionName,
-            project: data.projectName
-        })
+        name: data.collectionName,
+        project: data.projectName
+    })
         .then(function (collection) {
-            const helper = collectionHelper(collection);
+            var helper = collectionHelper(collection);
 
             // adding slugs mapping to key value datastore
             return slugs.setSlugsAsync(
                 helper.getName(),
                 helper.getSlugs(),
                 dataHelper.inputMapper(data.body, collection)
-            ).then(function () {
+            ).then(function (res) {
                 return elastic.addDocumentsAsync({
                     index: helper.getIndex(),
                     type: helper.getType(),
@@ -287,31 +333,37 @@ exports.addDocumentsAsync = function (data) {
                 collection: data.collectionName
             }), 'took', 'errors', 'ids', 'collection');
         })
-};
+}
 
 /**
  * add all documents to elastic
- * @param {Array} data full data
- * @param {Function} callback
+ * @param {Array} documents full data
+ * @param {String} projectName
+ * @param {String} collectionName
+ * @param {Integer} batchSize
  * @return {String} inserted documents count
  */
 exports.addAllDocuments = function (data, callback) {
-    const documents = data.body;
-    const limit = documents.length;
-    let length = documents.length;
 
-    const batchSize = data.batchSize || 1000;
+    var documents = data.body;
+    var limit = documents.length;
+    var length = documents.length;
+
+    var batchSize = data.batchSize || 1000;
+
+    var count = 0;
 
     // needs to be refactored
-    const projectName = data.projectName;
-    const collectionName = data.collectionName;
+    var projectName = data.projectName;
+    var collectionName = data.collectionName;
 
     async.whilst(
         function () {
             return length > 0;
         },
         function (callback) {
-            const removed = documents.splice(0, batchSize);
+
+            var removed = documents.splice(0, batchSize);
             exports.addDocumentsAsync({
                 // needs to be refactored
                 projectName: projectName,
@@ -322,14 +374,14 @@ exports.addAllDocuments = function (data, callback) {
                 return callback(null, res);
             }).catch(function (err) {
                 return callback(err);
-            });
+            })
             length -= removed.length;
         },
-        function (err) {
+        function (err, res) {
             if (err) {
                 console.log(err);
             }
             callback(null, limit + ' documents added');
         }
     );
-};
+}

@@ -1,8 +1,8 @@
 const request = require('request');
-const { createOptionsObject } = require('./utils');
+const {createOptionsObject} = require('./utils');
 
 const MCApi = {
-    textClassification: (options) => new Promise ((resolve) => {
+    textClassification: (options) => new Promise((resolve) => {
         // Endpoint Url
         const endpoint = '/class-1.1';
 
@@ -15,7 +15,7 @@ const MCApi = {
         });
     }),
 
-    topicsExtraction: (options) => new Promise ((resolve) => {
+    topicsExtraction: (options) => new Promise((resolve) => {
         // Endpoint Url
         const endpoint = '/topics-2.0';
 

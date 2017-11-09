@@ -8,10 +8,11 @@ var path = require('path');
 var os = require('os');
 var youtubedl = require('youtube-dl');
 var cloudinary = require('./cloudinary');
+var request = require('request');
 
 var DEFAULT_OPTIONS = {
     output: os.tmpdir() + '/media',
-    resource_type: 'video'
+    typo: 'video'
 }
 
 exports.getMediaAsync = function (itemID, url, options) {
@@ -26,32 +27,54 @@ exports.getMediaAsync = function (itemID, url, options) {
 
         const filename = path.resolve(options.output, itemID);
 
-        var video = youtubedl(url,
-            // Optional arguments passed to youtube-dl.
-            ['--format=18', '--hls-prefer-ffmpeg'],
-            // Additional options can be given for calling `child_process.execFile()`.
-            {cwd: options.output});
+        if (options.typo === 'video') {
+            var video = youtubedl(url,
+                // Optional arguments passed to youtube-dl.
+                ['--format=18', '--hls-prefer-ffmpeg'],
+                // Additional options can be given for calling `child_process.execFile()`.
+                {cwd: options.output});
 
-        // Will be called when the download starts.
-        video.on('info', function (info) {
-            logger.info(`Downloading ${info._filename} size ${info.size}`);
-        });
-
-        video.pipe(fs.createWriteStream(filename));
-
-        video.on('end', function () {
-            cloudinary.upload(filename, options).then(function (result) {
-                resolve({
-                    tmpFile: filename,
-                    mediaURL: result
-                });
-            }).catch(function (err) {
-                reject(err);
+            // Will be called when the download starts.
+            video.on('info', function (info) {
+                logger.info(`Downloading ${info._filename} size ${info.size}`);
             });
-        });
 
-        video.on('error', function error(err) {
-            return reject(err);
-        });
+            video.pipe(fs.createWriteStream(filename));
+
+            video.on('end', function () {
+                cloudinary.upload(filename, options).then(function (result) {
+                    resolve({
+                        tmpFile: filename,
+                        mediaURL: result
+                    });
+                }).catch(function (err) {
+                    reject(err);
+                });
+            });
+
+            video.on('error', function error(err) {
+                return reject(err);
+            });
+        }
+        else if (options.typo === 'image' || options.typo === 'audio') {
+            var media = request.get(url);
+
+            media.pipe(fs.createWriteStream(filename));
+
+            media.on('end', function () {
+                cloudinary.upload(filename, options).then(function (result) {
+                    resolve({
+                        tmpFile: filename,
+                        mediaURL: result
+                    });
+                }).catch(function (err) {
+                    reject(err);
+                });
+            });
+
+            media.on('error', function error(err) {
+                return reject(err);
+            });
+        }
     });
 }
