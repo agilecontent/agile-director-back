@@ -49,7 +49,10 @@ module.exports = {
                     id: `object${index}text`,
                     play,
                     zIndex: 3,
-                    duration: obj.textDuration ? parseInt(obj.textDuration) : `object${index}.duration`
+                    duration: obj.textDuration ? parseInt(obj.textDuration) : `object${index}.duration`,
+                    textLines: 2,
+                    textSizeFit: 'true',
+                    textAlignV: 'bottom',
                 },
             };
 
