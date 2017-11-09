@@ -22,6 +22,7 @@ exports.processItemAsync = function (mediaURL, language, typo, tags) {
     return new Promise(function (resolve, reject) {
         const itemID = randomstring.generate(12);
         const data = {};
+        data.typo = typo;
 
         async.waterfall([
             downloadMedia,
