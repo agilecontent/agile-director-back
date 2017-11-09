@@ -3,15 +3,31 @@ const {createOptionsObject} = require('./utils');
 
 const MCApi = {
     textClassification: (options) => new Promise((resolve) => {
+        if (!options.txt || options.txt === '') {
+            resolve();
+            return;
+        }
+
         // Endpoint Url
         const endpoint = '/class-1.1';
 
         // Set options
         const requestOptions = createOptionsObject(options, endpoint);
 
+        console.log('MCApi::requestOptions::', requestOptions);
+
         // Request
         request.post(requestOptions, (error, response, body) => {
-            resolve(JSON.parse(body));
+            if (error) {
+                reject(error);
+            }
+
+            console.log('MCApi::requestResult::', body);
+
+            if (body) {
+                resolve(JSON.parse(body));
+            }
+            resolve();
         });
     }),
 
