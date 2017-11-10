@@ -95,7 +95,7 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
                     txt: data.description
                 }).then(function (result) {
                     logger.info('getTags', itemID, result);
-                    data.tags = result ? _.union(tags, extractCategoryLabels(result.categories_labels)) : tags;
+                    data.tags = result ? _.union(tags, extractCategoryLabels(result)) : tags;
                     cb(null, data);
                 }).catch(function (err) {
                     logger.info('ERROR getTags', err);
