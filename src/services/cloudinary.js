@@ -25,7 +25,7 @@ exports.upload = function (filename, options) {
         }
 
         const cloudinaryOptions = {
-            resource_type: options.typo === 'audio' ? 'video' : options.typo
+            resource_type: options.typo === 'audio' ? 'video' : 'auto';
         };
 
         logger.info('Uploading to cloudinary', cloudinaryOptions, filename);
