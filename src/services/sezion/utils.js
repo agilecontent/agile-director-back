@@ -53,6 +53,27 @@ module.exports = {
                     textLines: 2,
                     textSizeFit: 'true',
                     textAlignV: 'bottom',
+                    size: {
+                        h: 0.2,
+                        w: 0.9
+                    },
+                    "events": [
+                        {
+                            "start": {
+                                "imageFadeIn": 500
+                            }
+                        },
+                        {
+                            "end - 500": {
+                                "imageFadeOut": 500
+                            }
+                        }
+                    ],
+                    "position": {
+                        "x": 0.05,
+                        "y": 0.03
+                    },
+
                 },
             };
 
