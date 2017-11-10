@@ -11,6 +11,7 @@ module.exports = {
         return Object.assign({}, options, { url: apiUrl + endpoint, form: form });
     },
     extractCategoryLabels: (categoriesList) => {
+        console.log(categoriesList);
         const categories = categoriesList.map(({ label }) => label.split(/\s-\s/));
         const removeArrayDuplicatesPredicate = (elem, pos, arr) => arr.indexOf(elem) === pos;
 
