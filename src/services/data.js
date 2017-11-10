@@ -80,13 +80,14 @@ exports.processItemAsync = function (mediaURL, language, typo, tags) {
         }
 
         function getTags(data, cb) {
+            console.log(data.description);
             MCApi.textClassification({
                 model: MCModels.spanish.IPTC,
                 txt: data.description
             }).then(function (result) {
                 console.log(tags);
                 console.log(result);
-                data.tags = result.categories_labels ? _.union(tags, extractCategoryLabels(result.categories_labels)) : tags;
+                data.tags = result ? _.union(tags, extractCategoryLabels(result.categories_labels)) : tags;
                 cb(null, data);
             }).catch(function (err) {
                 cb(err);
