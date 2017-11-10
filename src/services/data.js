@@ -80,6 +80,8 @@ exports.processItemAsync = function (mediaURL, language, typo, tags) {
         }
 
         function getTags(data, cb) {
+            console.log('DESCRIPTION');
+            console.log(data);
             console.log(data.description);
             MCApi.textClassification({
                 model: MCModels.spanish.IPTC,
