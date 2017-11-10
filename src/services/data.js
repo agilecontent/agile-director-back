@@ -93,6 +93,8 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
                 model: MCModels.spanish.IPTC,
                 txt: data.description
             }).then(function (result) {
+
+                logger.info('description', data.description);
                 logger.info('getTags', itemID, result);
                 data.tags = result ? _.union(tags, extractCategoryLabels(JSON.parse(result).categories_labels)) : tags;
                 cb(null, data);
