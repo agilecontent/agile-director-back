@@ -84,7 +84,9 @@ exports.processItemAsync = function (mediaURL, language, typo, tags) {
                 model: MCModels.spanish.IPTC,
                 txt: data.description
             }).then(function (result) {
-                data.tags = result ? _.union(tags, extractCategoryLabels(result.categories_labels)) : tags;
+                console.log(tags);
+                console.log(result);
+                data.tags = result.categories_labels ? _.union(tags, extractCategoryLabels(result.categories_labels)) : tags;
                 cb(null, data);
             }).catch(function (err) {
                 cb(err);
