@@ -17,6 +17,7 @@ var randomstring = require('randomstring');
 var MCApi = require('./meaningCloud');
 var MCModels = require('./meaningCloud/models');
 var {extractCategoryLabels} = require('./meaningCloud/utils');
+var logger = require('./../../config/logger');
 
 exports.processItemAsync = function (mediaURL, language, typo, tags, description) {
     return new Promise(function (resolve, reject) {
@@ -32,7 +33,10 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
             getSubtitles,
             getTags
         ], function (err, result) {
-            if (err) return reject(err);
+            if (err) {
+                logger.info(err);
+                return reject(err);
+            }
             return resolve(result);
         });
 
@@ -40,6 +44,7 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
             mediaService.getMediaAsync(itemID, mediaURL, {typo: typo}).then(function (result) {
                 data.tmpFile = result.tmpFile;
                 data.mediaURL = result.mediaURL;
+                logger.info('downloadMedia', itemID);
                 cb(null, data);
             }).catch(function (err) {
                 cb(err);
@@ -49,6 +54,7 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
         function getThumbnail(data, cb) {
             thumbnailsService.getThumbnailAsync(itemID, mediaURL, {typo: typo}).then(function (result) {
                 data.image = result ? result : typo === 'image' ? data.mediaURL : '';
+                logger.info('getThumbnail', itemID);
                 cb(null, data);
             }).catch(function (err) {
                 cb(err);
@@ -61,6 +67,7 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
                 format: 'raw',
                 typo: typo
             }).then(function (result) {
+                logger.info('getDescription', itemID, result);
                 data.description = result;
                 cb(null, data);
             }).catch(function (err) {
@@ -73,6 +80,7 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
                 language: language,
                 typo: typo
             }).then(function (result) {
+                logger.info('getSubtitles', itemID, result);
                 data.transcript = result;
                 cb(null, data);
             }).catch(function (err) {
@@ -81,15 +89,11 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
         }
 
         function getTags(data, cb) {
-            console.log('DESCRIPTION');
-            console.log(data);
-            console.log(data.description);
             MCApi.textClassification({
                 model: MCModels.spanish.IPTC,
                 txt: data.description
             }).then(function (result) {
-                console.log(tags);
-                console.log(result);
+                logger.info('getTags', itemID, result);
                 data.tags = result ? _.union(tags, extractCategoryLabels(result.categories_labels)) : tags;
                 cb(null, data);
             }).catch(function (err) {
@@ -133,7 +137,7 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
  * get document
  */
 exports.addDocumentAsync = function (data) {
-    return exports.processItemAsync(data.body.videoURL, data.body.language, data.body.typo, data.body.tags, data.body.description ).then(function (result) {
+    return exports.processItemAsync(data.body.videoURL, data.body.language, data.body.typo, data.body.tags, data.body.description).then(function (result) {
         data.body.mediaURL = result.mediaURL;
         data.body.image = result.image;
         data.body.transcript = result.transcript;
