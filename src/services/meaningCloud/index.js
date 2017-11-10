@@ -3,6 +3,7 @@ const {createOptionsObject} = require('./utils');
 
 const MCApi = {
     textClassification: (options) => new Promise((resolve) => {
+        console.log(options);
         if (!options.txt || options.txt === '') {
             resolve();
             return;
