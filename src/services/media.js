@@ -56,7 +56,7 @@ exports.getMediaAsync = function (itemID, url, options) {
                 return reject(err);
             });
         }
-        else if (options.typo === 'image' || options.typo === 'audio') {
+        else if (options.typo === 'image') {
             var media = request.get(url);
 
             media.pipe(fs.createWriteStream(filename));
@@ -74,6 +74,12 @@ exports.getMediaAsync = function (itemID, url, options) {
 
             media.on('error', function error(err) {
                 return reject(err);
+            });
+        }
+        else if (options.typo === 'audio') {
+            // do nothing
+            resolve({
+                mediaURL: url
             });
         }
     });

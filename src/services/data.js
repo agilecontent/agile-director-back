@@ -44,7 +44,7 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
             mediaService.getMediaAsync(itemID, mediaURL, {typo: typo}).then(function (result) {
                 data.tmpFile = result.tmpFile;
                 data.mediaURL = result.mediaURL;
-                logger.info('downloadMedia', itemID);
+                logger.info('downloadMedia', itemID, data.mediaURL);
                 cb(null, data);
             }).catch(function (err) {
                 cb(err);
@@ -53,8 +53,8 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
 
         function getThumbnail(data, cb) {
             thumbnailsService.getThumbnailAsync(itemID, mediaURL, {typo: typo}).then(function (result) {
-                data.image = result ? result : typo === 'image' ? data.mediaURL : '';
-                logger.info('getThumbnail', itemID);
+                data.image = result;
+                logger.info('getThumbnail', itemID, result);
                 cb(null, data);
             }).catch(function (err) {
                 cb(err);
@@ -68,7 +68,7 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
                 typo: typo
             }).then(function (result) {
                 logger.info('getDescription', itemID, result);
-                data.description = result;
+                data.description = result ? data.description.concat(' ').concat(result) : data.description;
                 cb(null, data);
             }).catch(function (err) {
                 cb(err);
@@ -89,18 +89,26 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
         }
 
         function getTags(data, cb) {
-            MCApi.textClassification({
-                model: MCModels.spanish.IPTC,
-                txt: data.description
-            }).then(function (result) {
-
-                logger.info('description', data.description);
-                logger.info('getTags', itemID, result);
-                data.tags = result ? _.union(tags, extractCategoryLabels(JSON.parse(result).categories_labels)) : tags;
+            try {
+                MCApi.textClassification({
+                    model: MCModels.spanish.IPTC,
+                    txt: data.description
+                }).then(function (result) {
+                    logger.info('getTags', itemID, result);
+                    data.tags = result ? _.union(tags, extractCategoryLabels(result.categories_labels)) : tags;
+                    cb(null, data);
+                }).catch(function (err) {
+                    logger.info('ERROR getTags', err);
+                    //cb(err);
+                    data.tags = tags;
+                    cb(null, data);
+                });
+            }
+            catch (error) {
+                logger.info('ERROR getTags', error);
+                data.tags = tags;
                 cb(null, data);
-            }).catch(function (err) {
-                cb(err);
-            });
+            }
         }
 
         /*function processSyntaxis(data, cb) {

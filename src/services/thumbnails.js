@@ -20,9 +20,12 @@ exports.getThumbnailAsync = function (itemID, url, options) {
 
     return new Promise(function (resolve, reject) {
 
-        if (options.typo === 'image' || options.typo === 'audio') {
-            // do nothing.
-            resolve();
+        if (options.typo === 'image') {
+            resolve(url);
+            return;
+        }
+        if (options.typo === 'audio') {
+            resolve('https://cloudinary-res.cloudinary.com/image/asset/audio_icon-a155dc629c58d29bd18ae4c907c9adc3.jpg');
             return;
         }
 
