@@ -133,7 +133,7 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
  * get document
  */
 exports.addDocumentAsync = function (data) {
-    return exports.processItemAsync(data.body.videoURL, data.body.language, data.body.typo, data.body.tags, data.body.description, ).then(function (result) {
+    return exports.processItemAsync(data.body.videoURL, data.body.language, data.body.typo, data.body.tags, data.body.description ).then(function (result) {
         data.body.mediaURL = result.mediaURL;
         data.body.image = result.image;
         data.body.transcript = result.transcript;
