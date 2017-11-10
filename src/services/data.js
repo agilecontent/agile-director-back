@@ -18,11 +18,12 @@ var MCApi = require('./meaningCloud');
 var MCModels = require('./meaningCloud/models');
 var {extractCategoryLabels} = require('./meaningCloud/utils');
 
-exports.processItemAsync = function (mediaURL, language, typo, tags) {
+exports.processItemAsync = function (mediaURL, language, typo, tags, description) {
     return new Promise(function (resolve, reject) {
         const itemID = randomstring.generate(12);
         const data = {};
         data.typo = typo;
+        data.description = description;
 
         async.waterfall([
             downloadMedia,
@@ -132,7 +133,7 @@ exports.processItemAsync = function (mediaURL, language, typo, tags) {
  * get document
  */
 exports.addDocumentAsync = function (data) {
-    return exports.processItemAsync(data.body.videoURL, data.body.language, data.body.typo, data.body.tags).then(function (result) {
+    return exports.processItemAsync(data.body.videoURL, data.body.language, data.body.typo, data.body.tags, data.body.description, ).then(function (result) {
         data.body.mediaURL = result.mediaURL;
         data.body.image = result.image;
         data.body.transcript = result.transcript;
