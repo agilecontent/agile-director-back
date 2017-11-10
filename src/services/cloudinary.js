@@ -24,7 +24,7 @@ exports.upload = function (filename, options) {
             reject(new Error(`${filename} not found.`))
         }
 
-        logger.info('Uploading to cloudinary');
+        logger.info('Uploading to cloudinary', options.typo, filename);
 
         cloudinary.uploader.upload(filename, function (result) {
             if (result.error) {
