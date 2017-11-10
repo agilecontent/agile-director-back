@@ -24,15 +24,19 @@ exports.upload = function (filename, options) {
             reject(new Error(`${filename} not found.`))
         }
 
-        logger.info('Uploading to cloudinary', options.typo, filename);
+        const cloudinaryOptions = {
+            resource_type: options.typo === 'audio' ? 'video' : options.typo
+        };
 
-        cloudinary.uploader.upload(filename, function (result) {
-            if (result.error) {
-                logger.info('cloudinary api error', result.error);
-                return reject(result.error.message)
+        logger.info('Uploading to cloudinary', cloudinaryOptions, filename);
+
+        cloudinary.v2.uploader.upload(filename, cloudinaryOptions, function (error, result) {
+            if (error) {
+                logger.info('cloudinary api error', error);
+                return reject(error)
             }
             logger.info('uploaded and continue', result);
             return resolve(result.url)
-        }, options)
+        })
     })
 }
