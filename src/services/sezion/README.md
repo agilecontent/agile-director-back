@@ -74,7 +74,6 @@ const templateData = {
         },
         {
             type: type.TEXT,
-            delay: 1000,
             duration: 5000,
         },
         {

@@ -18,6 +18,7 @@ module.exports = {
             type: type.IMAGE,
             duration: 3000,
         });
+        console.log(objectsList);
         const config = objectsList.reduce((template, obj, index) => {
             console.log(obj);
             const getPrevObjectType = (prevObject) => Object.keys(prevObject)[0];
