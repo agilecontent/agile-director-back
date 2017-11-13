@@ -18,8 +18,10 @@ var MCApi = require('./meaningCloud');
 var MCModels = require('./meaningCloud/models');
 var {extractCategoryLabels} = require('./meaningCloud/utils');
 var logger = require('./../../config/logger');
+var AuphonicApi = require('./auphonic');
+const presets = require('./auphonic/presets');
 
-exports.processItemAsync = function (mediaURL, language, typo, tags, description) {
+exports.processItemAsync = function (mediaURL, language, typo, tags, description, filter) {
     return new Promise(function (resolve, reject) {
         const itemID = randomstring.generate(12);
         const data = {};
@@ -45,7 +47,26 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
                 data.tmpFile = result.tmpFile;
                 data.mediaURL = result.mediaURL;
                 logger.info('downloadMedia', itemID, data.mediaURL);
-                cb(null, data);
+
+                if (typo === 'audio') {
+                    //if (typo === 'audio' && (filter === 'true' || filter)) {
+                    try {
+                        logger.info('filtering audio...')
+                        AuphonicApi.audioTransform(result.mediaURL, itemID, presets.removeBackgroundNoise).then(function (result) {
+                            logger.info('AuphonicApi', result);
+                            result = JSON.parse(result);
+                            data.output_basename = result.output_basename;
+                            data.uuid = result.uuid;
+                            cb(null, data);
+                        });
+                    }
+                    catch (err) {
+                        logger.error('filtering audio', err);
+                    }
+                }
+                else {
+                    cb(null, data);
+                }
             }).catch(function (err) {
                 cb(err);
             })
@@ -147,7 +168,7 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
  * get document
  */
 exports.addDocumentAsync = function (data) {
-    return exports.processItemAsync(data.body.videoURL, data.body.language, data.body.typo, data.body.tags, data.body.description).then(function (result) {
+    return exports.processItemAsync(data.body.videoURL, data.body.language, data.body.typo, data.body.tags, data.body.description, data.body.filter).then(function (result) {
         data.body.mediaURL = result.mediaURL;
         data.body.image = result.image;
         data.body.transcript = result.transcript;
