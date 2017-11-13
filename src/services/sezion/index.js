@@ -11,13 +11,8 @@ const SezionApi = {
         });
     }),
     createTemplate: ({ name, description, templateObjectsList }) => new Promise((resolve, reject) => {
-        console.log('---templateObjectsList');
-        console.log(templateObjectsList);
         // Set correct template structure
         const inputScriptsConfig = utils.createTemplateFromList(templateObjectsList);
-
-        console.log('---inputScriptsConfig');
-        console.log(inputScriptsConfig);
         const templateData = Object.assign({}, template, {
             name,
             description,

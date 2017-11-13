@@ -13,16 +13,7 @@ module.exports = {
         return typesCount;
     },
     getTemplateShape: (template) => [JSON.stringify(template)],
-    createTemplateFromList: (objectsList) => {
-        objectsList.unshift({
-            type: type.IMAGE,
-            duration: 3000,
-            textDuration: '',
-            text: '',
-        });
-        console.log(objectsList);
-        const config = objectsList.reduce((template, obj, index) => {
-            console.log(obj);
+    createTemplateFromList: (objectsList) => objectsList.reduce((template, obj, index) => {
             const getPrevObjectType = (prevObject) => Object.keys(prevObject)[0];
 
             // Get previous object
@@ -93,23 +84,28 @@ module.exports = {
             }
 
         return template;
-    }, []);
-        return config;
-    },
+    }, []),
     orderVideosComparer: (a, b) => {
         a = new Date(a.date);
         b = new Date(b.date);
         return a > b ? -1 : a < b ? 1 : 0;
     },
     createInputMediasShape: (items) => {
+        // Presentation
         items.unshift({
             http: 'http://res.cloudinary.com/dnmfgg5t7/image/upload/v1510589398/first_upgoyv.png',
             type: type.IMAGE,
+            duration: 3000,
         });
-        console.log('----items');
-        console.log(items);
+
+        // Last
+        items.push({
+            http: 'http://res.cloudinary.com/dnmfgg5t7/image/upload/v1510589377/last_rauez3.png',
+            type: type.IMAGE,
+            duration: 3000,
+        });
+
         return items.reduce((inputMedias, item, index) => {
-            console.log(item);
             const itemConfig = {
                 inputID: `object${index}`,
                 http: item.http,
