@@ -13,86 +13,98 @@ module.exports = {
         return typesCount;
     },
     getTemplateShape: (template) => [JSON.stringify(template)],
-    createTemplateFromList: (objectsList) => objectsList.reduce((template, obj, index) => {
-        console.log(obj);
-        const getPrevObjectType = (prevObject) => Object.keys(prevObject)[0];
-
-        // Get previous object
-        const prevObject = index > 0 ? template[index - 1] : null;
-
-        // Set start property depending on previous objects
-        const play = prevObject ? `${prevObject[getPrevObjectType(prevObject)].id}.end` : 0;
-
-        // Create object configuration
-        const objectConfig = {
-            [obj.type]: {
-                id: `object${index}`,
-                play,
+    createTemplateFromList: (objectsList) => {
+        objectsList.push({
+            [type.IMAGE]: {
+                id: 'object0',
+                sezionID: '5a09c02e077d087843ecb8ad',
+                name: 'first',
+                duration: 3000,
             },
-        };
+        });
+        const config = objectsList.reduce((template, obj, index) => {
+            console.log(obj);
+            const getPrevObjectType = (prevObject) => Object.keys(prevObject)[0];
 
-        // Set object duration
-        if (obj.duration) {
-            objectConfig[obj.type].duration = parseInt(obj.duration);
-        }
+            // Get previous object
+            const prevObject = index > 0 ? template[index - 1] : null;
 
-        template.push(objectConfig);
-
-        // Add text object
-        if(obj.text) {
-            // Set play property depending on delay configuration
-            const play = `object${index}.start`;
+            // Set start property depending on previous objects
+            const play = prevObject ? `${prevObject[getPrevObjectType(prevObject)].id}.end` : 0;
 
             // Create object configuration
             const objectConfig = {
-                [type.TEXT]: {
-                    id: `object${index}text`,
+                [obj.type]: {
+                    id: `object${index}`,
                     play,
-                    zIndex: 3,
-                    duration: obj.textDuration ? parseInt(obj.textDuration) : `object${index}.duration`,
-                    textLines: 2,
-                    textSizeFit: 'true',
-                    textAlignV: 'bottom',
-                    size: {
-                        h: 0.2,
-                        w: 0.9
-                    },
-                    "events": [
-                        {
-                            "start": {
-                                "imageFadeIn": 500
-                            }
-                        },
-                        {
-                            "end - 500": {
-                                "imageFadeOut": 500
-                            }
-                        }
-                    ],
-                    "position": {
-                        "x": 0.05,
-                        "y": 0.03
-                    },
-
                 },
             };
 
-            if(obj.textDuration) {
-                objectConfig[type.TEXT].duration = parseInt(obj.textDuration);
+            // Set object duration
+            if (obj.duration) {
+                objectConfig[obj.type].duration = parseInt(obj.duration);
             }
 
             template.push(objectConfig);
-        }
+
+            // Add text object
+            if(obj.text) {
+                // Set play property depending on delay configuration
+                const play = `object${index}.start`;
+
+                // Create object configuration
+                const objectConfig = {
+                    [type.TEXT]: {
+                        id: `object${index}text`,
+                        play,
+                        zIndex: 3,
+                        duration: obj.textDuration ? parseInt(obj.textDuration) : `object${index}.duration`,
+                        textLines: 2,
+                        textSizeFit: 'true',
+                        textAlignV: 'bottom',
+                        size: {
+                            h: 0.2,
+                            w: 0.9
+                        },
+                        "events": [
+                            {
+                                "start": {
+                                    "imageFadeIn": 500
+                                }
+                            },
+                            {
+                                "end - 500": {
+                                    "imageFadeOut": 500
+                                }
+                            }
+                        ],
+                        "position": {
+                            "x": 0.05,
+                            "y": 0.03
+                        },
+
+                    },
+                };
+
+                if(obj.textDuration) {
+                    objectConfig[type.TEXT].duration = parseInt(obj.textDuration);
+                }
+
+                template.push(objectConfig);
+            }
 
         return template;
-    }, [{
-        [type.IMAGE]: {
-            inputID: 'object0',
-            sezionID: '5a09c02e077d087843ecb8ad',
-            name: 'presentation',
-            duration: 3000,
-        },
-    }]),
+    }, []);
+        config.push({
+            [type.IMAGE]: {
+                id: 'object0',
+                sezionID: '5a09c02e077d087843ecb8ad',
+                name: 'last',
+                duration: 3000,
+            },
+        });
+        return config;
+    },
     orderVideosComparer: (a, b) => {
         a = new Date(a.date);
         b = new Date(b.date);
