@@ -17,6 +17,8 @@ module.exports = {
         objectsList.unshift({
             type: type.IMAGE,
             duration: 3000,
+            textDuration: '',
+            text: '',
         });
         console.log(objectsList);
         const config = objectsList.reduce((template, obj, index) => {
@@ -104,6 +106,8 @@ module.exports = {
             http: 'http://res.cloudinary.com/dnmfgg5t7/image/upload/v1510589398/first_upgoyv.png',
             type: type.IMAGE,
         });
+        console.log('----items');
+        console.log(items);
         return items.reduce((inputMedias, item, index) => {
             console.log(item);
             const itemConfig = {
