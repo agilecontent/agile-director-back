@@ -14,11 +14,9 @@ module.exports = {
     },
     getTemplateShape: (template) => [JSON.stringify(template)],
     createTemplateFromList: (objectsList) => {
-        objectsList.push({
-            [type.IMAGE]: {
-                id: 'presentation',
-                play: 3000,
-            },
+        objectsList.unshift({
+            type: type.IMAGE,
+            duration: 3000,
         });
         const config = objectsList.reduce((template, obj, index) => {
             console.log(obj);
@@ -101,11 +99,9 @@ module.exports = {
         return a > b ? -1 : a < b ? 1 : 0;
     },
     createInputMediasShape: (items) => {
-        items.push({
-            inputID: 'presentation',
+        items.unshift({
             http: 'http://res.cloudinary.com/dnmfgg5t7/image/upload/v1510589398/first_upgoyv.png',
             type: type.IMAGE,
-            name: 'first',
         });
         return items.reduce((inputMedias, item, index) => {
             console.log(item);
