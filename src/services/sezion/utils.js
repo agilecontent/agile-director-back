@@ -17,7 +17,7 @@ module.exports = {
         objectsList.push({
             [type.IMAGE]: {
                 id: 'object0',
-                play: 0,
+                play: 3000,
             },
         });
         const config = objectsList.reduce((template, obj, index) => {
@@ -93,11 +93,6 @@ module.exports = {
 
         return template;
     }, []);
-        config.push({
-            [type.IMAGE]: {
-                id: 'last',
-            },
-        });
         return config;
     },
     orderVideosComparer: (a, b) => {
@@ -108,9 +103,8 @@ module.exports = {
     createInputMediasShape: (items) => {
         items.push({
             inputID: 'object0',
-            sezionID: '5a09c02e077d087843ecb8ad',
+            http: 'http://res.cloudinary.com/dnmfgg5t7/image/upload/v1510589398/first_upgoyv.png',
             name: 'first',
-            duration: 3000,
         });
         return items.reduce((inputMedias, item, index) => {
             console.log(item);
