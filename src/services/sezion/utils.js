@@ -85,7 +85,14 @@ module.exports = {
         }
 
         return template;
-    }, []),
+    }, [{
+        [type.IMAGE]: {
+            inputID: 'object0',
+            sezionID: '5a09c02e077d087843ecb8ad',
+            name: 'presentation',
+            duration: 3000,
+        },
+    }]),
     orderVideosComparer: (a, b) => {
         a = new Date(a.date);
         b = new Date(b.date);
