@@ -16,7 +16,7 @@ module.exports = {
     createTemplateFromList: (objectsList) => {
         objectsList.push({
             [type.IMAGE]: {
-                id: 'object0',
+                id: 'presentation',
                 play: 3000,
             },
         });
@@ -102,8 +102,9 @@ module.exports = {
     },
     createInputMediasShape: (items) => {
         items.push({
-            inputID: 'object0',
+            inputID: 'presentation',
             http: 'http://res.cloudinary.com/dnmfgg5t7/image/upload/v1510589398/first_upgoyv.png',
+            type: type.IMAGE,
             name: 'first',
         });
         return items.reduce((inputMedias, item, index) => {
