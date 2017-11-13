@@ -17,9 +17,7 @@ module.exports = {
         objectsList.push({
             [type.IMAGE]: {
                 id: 'object0',
-                sezionID: '5a09c02e077d087843ecb8ad',
-                name: 'first',
-                duration: 3000,
+                play: 0,
             },
         });
         const config = objectsList.reduce((template, obj, index) => {
@@ -97,10 +95,7 @@ module.exports = {
     }, []);
         config.push({
             [type.IMAGE]: {
-                id: 'object0',
-                sezionID: '5a09c02e077d087843ecb8ad',
-                name: 'last',
-                duration: 3000,
+                id: 'last',
             },
         });
         return config;
@@ -110,27 +105,35 @@ module.exports = {
         b = new Date(b.date);
         return a > b ? -1 : a < b ? 1 : 0;
     },
-    createInputMediasShape: (items) => items.reduce((inputMedias, item, index) => {
-        console.log(item);
-        const itemConfig = {
-            inputID: `object${index}`,
-            http: item.http,
-            type: item.type,
-            name: item.type + 'item'
-        };
-
-        inputMedias.push(itemConfig);
-
-        if(item.text) {
-            const itemTextConfig = {
-                inputID: `object${index}text`,
-                text: item.text,
-                type: type.TEXT,
-                name: type.TEXT + 'item'
+    createInputMediasShape: (items) => {
+        items.push({
+            inputID: 'object0',
+            sezionID: '5a09c02e077d087843ecb8ad',
+            name: 'first',
+            duration: 3000,
+        });
+        return items.reduce((inputMedias, item, index) => {
+            console.log(item);
+            const itemConfig = {
+                inputID: `object${index}`,
+                http: item.http,
+                type: item.type,
+                name: item.type + 'item'
             };
-            inputMedias.push(itemTextConfig);
-        }
 
-        return inputMedias;
-    }, []),
+            inputMedias.push(itemConfig);
+
+            if(item.text) {
+                const itemTextConfig = {
+                    inputID: `object${index}text`,
+                    text: item.text,
+                    type: type.TEXT,
+                    name: type.TEXT + 'item'
+                };
+                inputMedias.push(itemTextConfig);
+            }
+
+            return inputMedias;
+        }, []);
+    }
 };
