@@ -26,6 +26,7 @@
     "mongoose": "^4.4.20",
     "morgan": "^1.7.0",
     "nconf": "^0.7.1",
+    "node-ffprobe": "^1.2.2",
     "object-assign": "^4.1.1",
     "os": "^0.1.1",
     "path": "^0.12.7",
@@ -64,5 +65,5 @@
     "start": "node app.js",
     "test": "NODE_ENV=test mocha tests/*"
   },
-  "version": "0.0.94"
+  "version": "0.0.95"
 }

@@ -33,9 +33,9 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
             downloadMedia,
             getThumbnail,
             getMetas,
-            getDescription,
-            getSubtitles,
-            getTags
+            //getDescription,
+            //getSubtitles,
+            //getTags
         ], function (err, result) {
             if (err) {
                 logger.info(err);

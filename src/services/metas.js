@@ -5,7 +5,8 @@ var assign = require('object-assign');
 var Promise = require('bluebird');
 var fs = require('fs');
 var exec = require('child_process').exec;
-var DEFAULT_OPTIONS = {}
+var DEFAULT_OPTIONS = {};
+var probe = require('node-ffprobe');
 
 exports.getMetasAsync = function (itemID, input, options) {
 
@@ -22,9 +23,15 @@ exports.getMetasAsync = function (itemID, input, options) {
             reject(new Error(`${input} not found.`))
         }
 
-        logger.info('Getting metadata from ' + input);
+        logger.info('Getting metadata from ', input);
 
-        exec(`ffprobe -show_streams -print_format json ${input}`, (err, stdout, stderr) => {
+        probe(input, function(err, probeData) {
+            console.log(probeData);
+        });
+
+        reject();
+
+        /*exec(`ffprobe -show_streams -print_format json ${input}`, (err, stdout, stderr) => {
             if (err) {
                 reject(err);
             }
@@ -32,6 +39,6 @@ exports.getMetasAsync = function (itemID, input, options) {
             logger.info('err', stderr);
 
             resolve(stderr);
-        });
+        });*/
     });
 }
