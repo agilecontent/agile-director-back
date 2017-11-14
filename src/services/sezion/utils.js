@@ -51,7 +51,6 @@ module.exports = {
             const objectConfig = Object.assign({}, defaults.text, {
                 id: `object${index}text`,
                 play,
-                duration: obj.textDuration ? parseInt(obj.textDuration) : `object${index}.duration`,
             });
 
             const textItem = {

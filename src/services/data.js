@@ -51,14 +51,15 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
                 if (typo === 'audio') {
                     //if (typo === 'audio' && (filter === 'true' || filter)) {
                     try {
-                        logger.info('filtering audio...')
-                        AuphonicApi.audioTransform(result.mediaURL, itemID, presets.removeBackgroundNoise).then(function (result) {
-                            logger.info('AuphonicApi', result);
-                            result = JSON.parse(result);
-                            data.output_basename = result.output_basename;
-                            data.uuid = result.uuid;
-                            cb(null, data);
-                        });
+                        logger.info('filtering audio...');
+                        AuphonicApi.audioTransform(result.mediaURL, itemID, presets.removeBackgroundNoise)
+                            .then(function (result) {
+                                logger.info('AuphonicApi', result);
+                                result = JSON.parse(result);
+                                data.output_basename = result.output_basename;
+                                data.uuid = result.uuid;
+                                cb(null, data);
+                            });
                     }
                     catch (err) {
                         logger.error('filtering audio', err);

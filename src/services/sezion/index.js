@@ -53,11 +53,11 @@ const SezionApi = {
                 .then((videos) => flatten(videos))
 
                 // Set the video links
-                .then((videos) => videos.map((video) => {
-                    return SezionApi.getVideoLinksById(video.id).then((links) => {
+                .then((videos) => videos.map((video) => SezionApi.getVideoLinksById(video.id)
+                    .then((links) => {
                         video.links = links[0];
                         return video;
-                    })}
+                    })
                 ))
 
                 // Resolve and order videos
