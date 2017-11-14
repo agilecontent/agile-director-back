@@ -24,7 +24,7 @@ exports.getMetasAsync = function (itemID, input, options) {
 
         logger.info('Getting metadata from ' + input);
 
-        exec(`ffmpeg -i ${input}`, (err, stdout, stderr) => {
+        exec(`ffprobe ${input}`, (err, stdout, stderr) => {
             if (err) {
                 reject(err);
             }
