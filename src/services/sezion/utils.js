@@ -51,15 +51,12 @@ module.exports = {
             const objectConfig = Object.assign({}, defaults.text, {
                 id: `object${index}text`,
                 play,
+                duration: obj.textDuration ? parseInt(obj.textDuration) : `object${index}.duration`,
             });
 
             const textItem = {
                 [type.TEXT]: objectConfig,
             };
-
-            if (obj.textDuration) {
-                textItem[type.TEXT].duration = parseInt(obj.textDuration);
-            }
 
             template.push(textItem);
         }
