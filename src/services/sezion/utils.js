@@ -1,7 +1,7 @@
 const { type } = require('./enum');
+const defaults = require('./defaults');
 
 module.exports = {
-    createDelayedStart: (start, delay) => [start, delay],
     getObjectsTypeCountFromList: (objectsList) => {
         const typesCount = {
             [type.AUDIO]: 0,
@@ -14,74 +14,56 @@ module.exports = {
     },
     getTemplateShape: (template) => [JSON.stringify(template)],
     createTemplateFromList: (objectsList) => objectsList.reduce((template, obj, index) => {
-            const getPrevObjectType = (prevObject) => Object.keys(prevObject)[0];
+        const getPrevObjectType = (prevObject) => Object.keys(prevObject)[0];
 
-            // Get previous object
-            const prevObject = index > 0 ? template[index - 1] : null;
+        // Get previous and next objects
+        const prevObject = index > 0 ? template[index - 1] : null;
+        const prevObjType = prevObject && getPrevObjectType(prevObject);
 
-            // Set start property depending on previous objects
-            const play = prevObject ? `${prevObject[getPrevObjectType(prevObject)].id}.end` : 0;
+        // Set start property depending on previous objects
+        const play = prevObject
+            ? (prevObjType === type.AUDIO)
+                ? `${prevObject[prevObjType].id}.start`
+                : `${prevObject[prevObjType].id}.end`
+            : 0;
 
-            // Create object configuration
-            const objectConfig = {
-                [obj.type]: {
-                    id: `object${index}`,
-                    play,
-                },
+        // Create object configuration
+        const objectConfig = {
+            [obj.type]: {
+                id: `object${index}`,
+                play,
+            },
+        };
+
+        // Set object duration
+        if (obj.duration) {
+            objectConfig[obj.type].duration = parseInt(obj.duration);
+        }
+
+        template.push(objectConfig);
+
+        // Add text object
+        if(obj.text) {
+            // Set play property depending on delay configuration
+            const play = `object${index}.start`;
+
+            // Create text object configuration
+            const objectConfig = Object.assign({}, defaults.text, {
+                id: `object${index}text`,
+                play,
+                duration: obj.textDuration ? parseInt(obj.textDuration) : `object${index}.duration`,
+            });
+
+            const textItem = {
+                [type.TEXT]: {objectConfig}
             };
 
-            // Set object duration
-            if (obj.duration) {
-                objectConfig[obj.type].duration = parseInt(obj.duration);
+            if (obj.textDuration) {
+                textItem[type.TEXT].duration = parseInt(obj.textDuration);
             }
 
-            template.push(objectConfig);
-
-            // Add text object
-            if(obj.text) {
-                // Set play property depending on delay configuration
-                const play = `object${index}.start`;
-
-                // Create object configuration
-                const objectConfig = {
-                    [type.TEXT]: {
-                        id: `object${index}text`,
-                        play,
-                        zIndex: 3,
-                        duration: obj.textDuration ? parseInt(obj.textDuration) : `object${index}.duration`,
-                        textLines: 2,
-                        textSizeFit: 'true',
-                        textAlignV: 'bottom',
-                        size: {
-                            h: 0.2,
-                            w: 0.9
-                        },
-                        "events": [
-                            {
-                                "start": {
-                                    "imageFadeIn": 500
-                                }
-                            },
-                            {
-                                "end - 500": {
-                                    "imageFadeOut": 500
-                                }
-                            }
-                        ],
-                        "position": {
-                            "x": 0.05,
-                            "y": 0.03
-                        },
-
-                    },
-                };
-
-                if(obj.textDuration) {
-                    objectConfig[type.TEXT].duration = parseInt(obj.textDuration);
-                }
-
-                template.push(objectConfig);
-            }
+            template.push(textItem);
+        }
 
         return template;
     }, []),
