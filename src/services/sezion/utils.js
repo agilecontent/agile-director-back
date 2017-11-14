@@ -54,7 +54,7 @@ module.exports = {
             });
 
             const textItem = {
-                [type.TEXT]: {objectConfig}
+                [type.TEXT]: objectConfig,
             };
 
             if (obj.textDuration) {
