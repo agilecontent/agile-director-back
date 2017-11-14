@@ -11,6 +11,7 @@ var collectionHelper = require('../helpers/collection');
 
 var mediaService = require('./media');
 var transcriptMediaService = require('./transcript');
+var metasService = require('./metas');
 /*var linguabuzzService = require('./linguabuzz');*/
 var thumbnailsService = require('./thumbnails');
 var randomstring = require('randomstring');
@@ -31,6 +32,7 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
         async.waterfall([
             downloadMedia,
             getThumbnail,
+            getMetas,
             getDescription,
             getSubtitles,
             getTags
@@ -91,6 +93,18 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
             }).then(function (result) {
                 logger.info('getDescription', itemID, result);
                 data.description = result ? data.description.concat(' ').concat(result) : data.description;
+                cb(null, data);
+            }).catch(function (err) {
+                cb(err);
+            })
+        }
+
+        function getMetas(data, cb) {
+            metasService.getMetasAsync(itemID, data.tmpFile, {
+                typo: typo
+            }).then(function (result) {
+                logger.info('getMetas', itemID, result);
+                data.metas = result;
                 cb(null, data);
             }).catch(function (err) {
                 cb(err);
@@ -180,6 +194,7 @@ exports.addDocumentAsync = function (data) {
         data.body.metas = result.metas;
         data.body.typo = result.typo;
         data.body.tags = result.tags;
+        data.body.metas = result.metas;
 
         collectionService.findCollectionAsync({
             name: data.collectionName,
