@@ -24,12 +24,14 @@ exports.getMetasAsync = function (itemID, input, options) {
 
         logger.info('Getting metadata from ' + input);
 
-        exec(`ffprobe ${input}`, (err, stdout, stderr) => {
+        exec(`ffprobe -show_streams -print_format json ${input}`, (err, stdout, stderr) => {
             if (err) {
                 reject(err);
             }
-            logger.info(stdout);
-            resolve(stdout);
+            logger.info('out', stdout);
+            logger.info('err', stderr);
+
+            resolve(stderr);
         });
     });
 }
