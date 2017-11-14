@@ -26,7 +26,7 @@ const MCApi = {
             console.log('MCApi::requestResult::', body);
 
             if (body) {
-                resolve(JSON.parse(body).category_list);
+                resolve(JSON.parse(body));
             }
         });
     }),

@@ -15,7 +15,7 @@ var transcriptMediaService = require('./transcript');
 var thumbnailsService = require('./thumbnails');
 var randomstring = require('randomstring');
 var MCApi = require('./meaningCloud');
-var MCModels = require('./meaningCloud/models');
+var MCTopics = require('./meaningCloud/topics');
 var {extractCategoryLabels} = require('./meaningCloud/utils');
 var logger = require('./../../config/logger');
 var AuphonicApi = require('./auphonic');
@@ -112,12 +112,15 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
 
         function getTags(data, cb) {
             try {
-                MCApi.textClassification({
-                    model: MCModels.spanish.IPTC,
+                MCApi.topicsExtraction({
+                    tt: MCTopics.concepts,
+                    lang: language,
                     txt: data.description
                 }).then(function (result) {
                     logger.info('getTags', itemID, result);
-                    data.tags = result ? _.union(tags, extractCategoryLabels(result)) : tags;
+                    data.tags = result
+                        ? _.union(tags, result.concept_list.map(({ form }) => form))
+                        : tags;
                     cb(null, data);
                 }).catch(function (err) {
                     logger.info('ERROR getTags', err);
