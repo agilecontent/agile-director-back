@@ -10,6 +10,8 @@ var statsService = Promise.promisifyAll(require('./../services/stats'));
 var collectionService = require('./../services/collection');
 var sezionApi = require('./../services/sezion');
 var utils = require('./../services/sezion/utils');
+var AuphonicApi = require('./../services/auphonic');
+var logger = require('./../../config/logger');
 
 /*
  * get specific item
@@ -162,20 +164,20 @@ var searchItemsAsync = function (req, res, next) {
 
     // @todo filtering params
     return searchService.searchAsync({
-            projectName: project,
-            collectionName: name,
-            page: page,
-            per_page: per_page,
-            query: req.query.query || '',
-            query_string: req.query.query_string || '',
-            sort: req.query.sort || '',
-            load_aggs: load_aggs,
-            key: req.query.key || '',
-            val: req.query.val || '',
-            aggs: aggs,
-            aroundLatLng: req.query.around_lat_lng,
-            fields: fields
-        })
+        projectName: project,
+        collectionName: name,
+        page: page,
+        per_page: per_page,
+        query: req.query.query || '',
+        query_string: req.query.query_string || '',
+        sort: req.query.sort || '',
+        load_aggs: load_aggs,
+        key: req.query.key || '',
+        val: req.query.val || '',
+        aggs: aggs,
+        aroundLatLng: req.query.around_lat_lng,
+        fields: fields
+    })
         .then(function (result) {
             result.meta.search_time = Date.now() - time;
             return result;
@@ -209,9 +211,9 @@ exports.export = function (req, res, next) {
 
 exports.facets = function facets(req, res, next) {
     return searchService.getFacetsAsync({
-            collectionName: req.params.name,
-            size: req.query.size
-        })
+        collectionName: req.params.name,
+        size: req.query.size
+    })
         .then(function (result) {
             return res.json(result);
         }).catch(function (result) {
@@ -222,20 +224,20 @@ exports.facets = function facets(req, res, next) {
 exports.facet = function searchItems(req, res, next) {
 
     return searchService.getProcessedFacetAsync({
-            collectionName: req.params.name,
-            // facet name is an aggregation name
-            facetName: req.params.facet,
-            fieldName: req.params.field_name,
-            size: req.query.size,
-            per_page: req.query.per_page,
-            page: req.query.page,
-            sort: req.query.sort,
-            order: req.query.order,
-            aggs: req.query.aggs,
-            query_string: req.query.query_string,
-            aggregation_query: req.query.aggregation_query,
-            query: req.query.query
-        })
+        collectionName: req.params.name,
+        // facet name is an aggregation name
+        facetName: req.params.facet,
+        fieldName: req.params.field_name,
+        size: req.query.size,
+        per_page: req.query.per_page,
+        page: req.query.page,
+        sort: req.query.sort,
+        order: req.query.order,
+        aggs: req.query.aggs,
+        query_string: req.query.query_string,
+        aggregation_query: req.query.aggregation_query,
+        query: req.query.query
+    })
         .then(function (result) {
             return res.json(result);
         }).catch(function (result) {
@@ -251,8 +253,8 @@ exports._search = function searchItems(req, res, next) {
     var body = req.body || {};
 
     return collectionService.findCollectionAsync({
-            name: name
-        })
+        name: name
+    })
         .then(function (collection) {
             var helper = collectionHelper(collection);
             return elastic._searchAsync({
@@ -282,13 +284,13 @@ exports.similar = function similarItems(req, res, next) {
     var per_page = req.query.per_page || 8;
 
     return searchService.similarAsync({
-            projectName: project,
-            collectionName: name,
-            ids: [id],
-            per_page: per_page,
-            query_string: req.query.query_string || '',
-            fields: fields
-        })
+        projectName: project,
+        collectionName: name,
+        ids: [id],
+        per_page: per_page,
+        query_string: req.query.query_string || '',
+        fields: fields
+    })
         .then(function (result) {
             return res.json(result);
         })
@@ -304,9 +306,9 @@ exports.findOne = function findOne(req, res, next) {
     var project = req.query.project;
 
     return collectionService.findCollectionAsync({
-            name: name,
-            project: project
-        })
+        name: name,
+        project: project
+    })
         .then(function (collection) {
             var helper = collectionHelper(collection);
             return elastic.findOneAsync({
@@ -331,8 +333,8 @@ exports.findOne = function findOne(req, res, next) {
 
 exports.stats = function getStats(req, res, next) {
     statsService.statsAsync({
-            projectName: 'project'
-        })
+        projectName: 'project'
+    })
         .then(function (result) {
             return res.json(result);
         })
@@ -352,15 +354,22 @@ exports.createNewVideo = function getResults(req, res) {
         items,
     } = req.body;
 
-    const fakeUploadFunction = () => {}; // Returns de Cloudinary item URL
+    const fakeUploadFunction = (uuid, output_basename) => {
+        AuphonicApi.getAudio(output_basename, uuid).then(function (result) {
+            logger.info('AuphonicApi.getAudio', result);
+            return result;
+        }).catch(function (err) {
+            logger.info('AuphonicApi.getAudio', err);
+        })
+    };
 
     const preparedItems = items.map(item => {
-        if(item.type === 'audio') {
-            const { uuid, output_basename } = item;
+        if (item.type === 'audio') {
+            const {uuid, output_basename} = item;
             // TODO (Download filtered audio and upload it to Cloudinary)
             const http = fakeUploadFunction(uuid, output_basename);
             return uuid
-                ? Object.assign({}, item, { http })
+                ? Object.assign({}, item, {http})
                 : item;
         } else {
             return item;
@@ -371,7 +380,7 @@ exports.createNewVideo = function getResults(req, res) {
     const inputMedias = utils.createInputMediasShape(preparedItems);
 
     // Create custom template for each video configuration
-    sezionApi.createTemplate({ name, description, templateObjectsList: preparedItems }).then((templateID) => {
+    sezionApi.createTemplate({name, description, templateObjectsList: preparedItems}).then((templateID) => {
         const videoData = {
             name,
             description,
