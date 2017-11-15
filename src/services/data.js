@@ -142,6 +142,7 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
                 }).then(function (result) {
                     logger.info('getIPTC', result);
                     data.iptc = extractCategoryLabels(result.category_list);
+                    console.log(data.iptc);
                     cb(null, data);
                 }).catch(function (err) {
                     logger.info('ERROR getIPTC', err);

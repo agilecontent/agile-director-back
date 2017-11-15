@@ -13,10 +13,10 @@ module.exports = {
     extractCategoryLabels: (categoriesList) => {
         console.log('Categories list');
         console.log(categoriesList);
-        const categories = categoriesList.map(({ label }) => label.split(/\s-\s/));
+        const categories = categoriesList.map(({ label }) => label);
         const removeArrayDuplicatesPredicate = (elem, pos, arr) => arr.indexOf(elem) === pos;
 
         // Array with all categories
-        return flatten(categories).filter(removeArrayDuplicatesPredicate);
+        return categories.filter(removeArrayDuplicatesPredicate);
     },
 };
