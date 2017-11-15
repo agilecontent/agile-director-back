@@ -233,6 +233,7 @@ exports.addDocumentAsync = function (data) {
             data.body.metas = result.metas;
             data.body.typo = result.typo;
             data.body.tags = result.tags;
+            data.body.iptc = result.iptc;
             data.body.metas = result.metas;
 
             collectionService.findCollectionAsync({
