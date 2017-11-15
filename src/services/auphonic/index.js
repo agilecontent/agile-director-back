@@ -18,6 +18,8 @@ const AuphonicApi = {
         };
 
         request.post(options, (err, response, body) => {
+            console.log('AUDIO TRANSFORM');
+            console.log(JSON.parse(body).data);
             const { output_basename, uuid } = JSON.parse(body).data;
             resolve({ output_basename, uuid });
         });
