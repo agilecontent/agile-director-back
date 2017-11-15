@@ -59,7 +59,7 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
         function processMedia(data, cb) {
             if (typo === 'audio') {
                 logger.info('filtering audio...');
-                AuphonicApi.audioTransform(result.mediaURL, itemID, presets.removeBackgroundNoise).then(function (result) {
+                AuphonicApi.audioTransform(data.mediaURL, itemID, presets.removeBackgroundNoise).then(function (result) {
                     logger.info('AuphonicApi', result);
                     try {
                         result = JSON.parse(result);
