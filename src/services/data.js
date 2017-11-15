@@ -22,7 +22,7 @@ var logger = require('./../../config/logger');
 var AuphonicApi = require('./auphonic');
 const presets = require('./auphonic/presets');
 
-exports.processItemAsync = function (mediaURL, language, typo, tags, description, filter) {
+exports.processItemAsync = function (mediaURL, language, typo, tags, description) {
     return new Promise(function (resolve, reject) {
         const itemID = randomstring.generate(12);
         const data = {};
@@ -50,6 +50,7 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
                 data.tmpFile = result.tmpFile;
                 data.mediaURL = result.mediaURL;
                 logger.info('downloadMedia', itemID, data.mediaURL);
+                cb(null, data);
             }).catch(function (err) {
                 cb(err);
             })
@@ -70,6 +71,7 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
                     }
                     cb(null, data);
                 }).catch(function (err) {
+                    logger.info('AuphonicApi error', err);
                     // better continue
                     // cb(err);
                     cb(null, data);
