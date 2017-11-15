@@ -12,12 +12,10 @@ var collectionHelper = require('../helpers/collection');
 var mediaService = require('./media');
 var transcriptMediaService = require('./transcript');
 var metasService = require('./metas');
-/*var linguabuzzService = require('./linguabuzz');*/
 var thumbnailsService = require('./thumbnails');
 var randomstring = require('randomstring');
 var MCApi = require('./meaningCloud');
 var MCTopics = require('./meaningCloud/topics');
-var {extractCategoryLabels} = require('./meaningCloud/utils');
 var logger = require('./../../config/logger');
 var AuphonicApi = require('./auphonic');
 const presets = require('./auphonic/presets');
@@ -57,10 +55,13 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
         }
 
         function processMedia(data, cb) {
+            const hasFilter = !!filter;
             // try http://hwcdn.libsyn.com/p/f/1/f/f1fef1ebfd271dc7/17_Profesiones_y_Tipos_de_Personas_-_Zapp_Ingles_Listening_2.17.mp3
-            if (typo === 'audio') { // TODO: MARC check filter attribute
+            if (typo === 'audio' && hasFilter) {
                 logger.info('filtering audio...');
-                AuphonicApi.audioTransform(data.mediaURL, itemID, presets.removeBackgroundNoise).then(function (result) {
+                console.log(filter);
+                console.log(presets[filter]);
+                AuphonicApi.audioTransform(data.mediaURL, itemID, presets[filter]).then(function (result) {
                     logger.info('AuphonicApi', result);
                     data.output_basename = result.output_basename;
                     data.uuid = result.uuid;
