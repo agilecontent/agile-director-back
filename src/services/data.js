@@ -31,6 +31,7 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
 
         async.waterfall([
             downloadMedia,
+            processMedia,
             getThumbnail,
             getMetas,
             getDescription,
@@ -49,30 +50,35 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
                 data.tmpFile = result.tmpFile;
                 data.mediaURL = result.mediaURL;
                 logger.info('downloadMedia', itemID, data.mediaURL);
-
-                if (typo === 'audio') {
-                    //if (typo === 'audio' && (filter === 'true' || filter)) {
-                    try {
-                        logger.info('filtering audio...');
-                        AuphonicApi.audioTransform(result.mediaURL, itemID, presets.removeBackgroundNoise)
-                            .then(function (result) {
-                                logger.info('AuphonicApi', result);
-                                result = JSON.parse(result);
-                                data.output_basename = result.output_basename;
-                                data.uuid = result.uuid;
-                                cb(null, data);
-                            });
-                    }
-                    catch (err) {
-                        logger.error('filtering audio', err);
-                    }
-                }
-                else {
-                    cb(null, data);
-                }
             }).catch(function (err) {
                 cb(err);
             })
+        }
+
+        function processMedia(data, cb) {
+            if (typo === 'audio') {
+                logger.info('filtering audio...');
+                AuphonicApi.audioTransform(result.mediaURL, itemID, presets.removeBackgroundNoise).then(function (result) {
+                    logger.info('AuphonicApi', result);
+                    try {
+                        result = JSON.parse(result);
+                        data.output_basename = result.output_basename;
+                        data.uuid = result.uuid;
+                    } catch (err) {
+                        logger.info('error trying to parse', err);
+                        // better continue
+                    }
+                    cb(null, data);
+                }).catch(function (err) {
+                    // better continue
+                    // cb(err);
+                    cb(null, data);
+                })
+            }
+            else {
+                // do nothing.
+                cb(null, data);
+            }
         }
 
         function getThumbnail(data, cb) {
@@ -133,7 +139,7 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
                 }).then(function (result) {
                     logger.info('getTags', itemID, result);
                     data.tags = result
-                        ? _.union(tags, result.concept_list.map(({ form }) => form))
+                        ? _.union(tags, result.concept_list.map(({form}) => form))
                         : tags;
                     cb(null, data);
                 }).catch(function (err) {
