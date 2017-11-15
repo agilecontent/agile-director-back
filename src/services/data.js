@@ -36,8 +36,8 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
             getMetas,
             getDescription,
             getSubtitles,
+            getIPTC,
             getTags,
-            getIPTC
         ], function (err, result) {
             if (err) {
                 logger.info(err);
@@ -164,6 +164,7 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
                     data.tags = result
                         ? _.union(tags, result.concept_list.map(({form}) => form))
                         : tags;
+                    cb(null, data);
 
                 }).catch(function (err) {
                     logger.info('ERROR getTags', err);
