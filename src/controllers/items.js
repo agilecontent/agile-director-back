@@ -352,11 +352,26 @@ exports.createNewVideo = function getResults(req, res) {
         items,
     } = req.body;
 
+    const fakeUploadFunction = () => {}; // Returns de Cloudinary item URL
+
+    const preparedItems = items.map(item => {
+        if(item.type === 'audio') {
+            const { uuid, output_basename } = item;
+            // TODO (Download filtered audio and upload it to Cloudinary)
+            const http = fakeUploadFunction(uuid, output_basename);
+            return uuid
+                ? Object.assign({}, item, { http })
+                : item;
+        } else {
+            return item;
+        }
+    });
+
     // Create objects shape to match sezionAPi
-    const inputMedias = utils.createInputMediasShape(items);
+    const inputMedias = utils.createInputMediasShape(preparedItems);
 
     // Create custom template for each video configuration
-    sezionApi.createTemplate({ name, description, templateObjectsList: items }).then((templateID) => {
+    sezionApi.createTemplate({ name, description, templateObjectsList: preparedItems }).then((templateID) => {
         const videoData = {
             name,
             description,
