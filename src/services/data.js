@@ -22,7 +22,7 @@ var logger = require('./../../config/logger');
 var AuphonicApi = require('./auphonic');
 const presets = require('./auphonic/presets');
 
-exports.processItemAsync = function (mediaURL, language, typo, tags, description) {
+exports.processItemAsync = function (mediaURL, language, typo, tags, description, filter) {
     return new Promise(function (resolve, reject) {
         const itemID = randomstring.generate(12);
         const data = {};
@@ -36,7 +36,7 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
             getMetas,
             getDescription,
             getSubtitles,
-            //getTags
+            getTags
         ], function (err, result) {
             if (err) {
                 logger.info(err);
@@ -57,22 +57,17 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
         }
 
         function processMedia(data, cb) {
-            if (typo === 'audio') {
+            // try http://hwcdn.libsyn.com/p/f/1/f/f1fef1ebfd271dc7/17_Profesiones_y_Tipos_de_Personas_-_Zapp_Ingles_Listening_2.17.mp3
+            if (typo === 'audio') { // TODO: MARC check filter attribute
                 logger.info('filtering audio...');
                 AuphonicApi.audioTransform(data.mediaURL, itemID, presets.removeBackgroundNoise).then(function (result) {
                     logger.info('AuphonicApi', result);
-                    try {
-                        result = JSON.parse(result);
-                        data.output_basename = result.output_basename;
-                        data.uuid = result.uuid;
-                    } catch (err) {
-                        logger.info('error trying to parse', err);
-                        // better continue
-                    }
+                    data.output_basename = result.output_basename;
+                    data.uuid = result.uuid;
                     cb(null, data);
                 }).catch(function (err) {
                     logger.info('AuphonicApi error', err);
-                    // better continue
+                    // continue ...
                     // cb(err);
                     cb(null, data);
                 })
