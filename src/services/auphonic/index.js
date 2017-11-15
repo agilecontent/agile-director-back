@@ -2,7 +2,7 @@ const request = require('request');
 var fs = require('fs');
 var os = require('os');
 var path = require('path');
-var cloudinary = require('./../services/cloudinary');
+var cloudinary = require('./../cloudinary');
 
 // Credentials
 const username = 'marc.lopez@agilecontent.com';
