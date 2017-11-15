@@ -36,7 +36,8 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
             getMetas,
             getDescription,
             getSubtitles,
-            getTags
+            getTags,
+            getIPTC
         ], function (err, result) {
             if (err) {
                 logger.info(err);
@@ -132,6 +133,26 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
             })
         }
 
+        function getIPTC(data, cb) {
+            try {
+                MCApi.textClassification({
+                    model: MCModels[language].IPTC,
+                    txt: data.description
+                }).then(function (result) {
+                    logger.info('getTags', itemID, result);
+                    data.iptc = extractCategoryLabels(result.category_list);
+                    cb(null, data);
+                }).catch(function (err) {
+                    logger.info('ERROR getIPTC', err);
+                    cb(null, data);
+                });
+            } catch (error) {
+                logger.info('ERROR getIPTC', error);
+                data.tags = tags;
+                cb(null, data);
+            }
+        }
+
         function getTags(data, cb) {
             try {
                 MCApi.topicsExtraction({
@@ -148,18 +169,8 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
                     logger.info('ERROR getTags', err);
                     //cb(err);
                     data.tags = tags;
+                    cb(null, data);
                 });
-
-                MCApi.textClassification({
-                    model: MCModels.spanish.IPTC,
-                    txt: data.description
-                }).then(function (result) {
-                    logger.info('getTags', itemID, result);
-                    data.iptc = extractCategoryLabels(result.category_list);
-                }).catch(function (err) {
-                    logger.info('ERROR getIPTC', err);
-                });
-                cb(null, data);
             }
             catch (error) {
                 logger.info('ERROR getTags', error);

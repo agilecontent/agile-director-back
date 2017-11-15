@@ -1,8 +1,8 @@
 module.exports = {
-  spanish: {
+  es: {
     IPTC: 'IPTC_es'
   },
-  english: {
+  en: {
     IPTC: 'IPTC_en'
   }
 };
