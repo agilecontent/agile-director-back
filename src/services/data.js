@@ -57,6 +57,7 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
         function processMedia(data, cb) {
             const hasFilter = !!filter;
             console.log('PROCESS MEDIA');
+            console.log(filter);
             // try http://hwcdn.libsyn.com/p/f/1/f/f1fef1ebfd271dc7/17_Profesiones_y_Tipos_de_Personas_-_Zapp_Ingles_Listening_2.17.mp3
             if (typo === 'audio' && hasFilter) {
                 logger.info('filtering audio...');
@@ -191,20 +192,28 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
  * get document
  */
 exports.addDocumentAsync = function (data) {
-    return exports.processItemAsync(data.body.videoURL, data.body.language, data.body.typo, data.body.tags, data.body.description, data.body.filter).then(function (result) {
-        data.body.mediaURL = result.mediaURL;
-        data.body.image = result.image;
-        data.body.transcript = result.transcript;
-        data.body.description = result.description;
-        data.body.metas = result.metas;
-        data.body.typo = result.typo;
-        data.body.tags = result.tags;
-        data.body.metas = result.metas;
+    return exports.processItemAsync(
+        data.body.videoURL,
+        data.body.language,
+        data.body.typo,
+        data.body.tags,
+        data.body.description,
+        data.body['audio-filter']
+    )
+        .then(function (result) {
+            data.body.mediaURL = result.mediaURL;
+            data.body.image = result.image;
+            data.body.transcript = result.transcript;
+            data.body.description = result.description;
+            data.body.metas = result.metas;
+            data.body.typo = result.typo;
+            data.body.tags = result.tags;
+            data.body.metas = result.metas;
 
-        collectionService.findCollectionAsync({
-            name: data.collectionName,
-            project: data.projectName
-        })
+            collectionService.findCollectionAsync({
+                name: data.collectionName,
+                project: data.projectName
+            })
             .then(function (collection) {
                 var helper = collectionHelper(collection);
 
