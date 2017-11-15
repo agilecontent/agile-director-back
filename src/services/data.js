@@ -235,6 +235,8 @@ exports.addDocumentAsync = function (data) {
             data.body.tags = result.tags;
             data.body.iptc = result.iptc;
             data.body.metas = result.metas;
+            data.body.uuid = result.uuid;
+            data.body.output_basename = result.output_basename;
 
             collectionService.findCollectionAsync({
                 name: data.collectionName,
