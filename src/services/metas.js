@@ -29,7 +29,7 @@ exports.getMetasAsync = function (itemID, input, options) {
             if (err) {
                 reject(err);
             }
-            resolve(JSON.stringify(probeData.format));
+            resolve(JSON.stringify(probeData.format, null, 4));
         });
     });
 }
