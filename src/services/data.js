@@ -134,12 +134,13 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
         }
 
         function getIPTC(data, cb) {
+            console.log('GET IPTC');
             try {
                 MCApi.textClassification({
                     model: MCModels[language].IPTC,
                     txt: data.description
                 }).then(function (result) {
-                    logger.info('getTags', itemID, result);
+                    logger.info('getIPTC', result);
                     data.iptc = extractCategoryLabels(result.category_list);
                     cb(null, data);
                 }).catch(function (err) {
@@ -148,7 +149,6 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
                 });
             } catch (error) {
                 logger.info('ERROR getIPTC', error);
-                data.tags = tags;
                 cb(null, data);
             }
         }
