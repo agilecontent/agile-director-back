@@ -155,7 +155,7 @@ exports.processItemAsync = function (mediaURL, language, typo, tags, description
                     txt: data.description
                 }).then(function (result) {
                     logger.info('getTags', itemID, result);
-                    data.iptc = extractCategoryLabels(result.categories_labels);
+                    data.iptc = extractCategoryLabels(result.category_list);
                 }).catch(function (err) {
                     logger.info('ERROR getIPTC', err);
                 });
