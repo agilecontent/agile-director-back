@@ -17,7 +17,7 @@ module.exports = {
         const getPrevObjectType = (prevObject) => Object.keys(prevObject)[0];
 
         // Get previous and next objects
-        const prevObject = index > 0 ? template[index - 1] : null;
+        const prevObject = index > 0 ? template[template.length - 1] : null;
         const prevObjType = prevObject && getPrevObjectType(prevObject);
 
         // Set start property depending on previous objects
