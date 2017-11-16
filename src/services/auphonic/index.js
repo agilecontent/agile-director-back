@@ -3,6 +3,7 @@ var fs = require('fs');
 var os = require('os');
 var path = require('path');
 var cloudinary = require('./../cloudinary');
+var logger = require('./../../config/logger');
 
 // Credentials
 const username = 'marc.lopez@agilecontent.com';
@@ -55,13 +56,11 @@ const AuphonicApi = {
             url: `${auphonicAPIUrl}/download/audio-result/${uuid}/${audioName}`,
         };
 
-        console.log(`getAudio:options ${options}`);
+        logger.info(`getAudio:options ${option.url}`);
 
         var r = request(options);
 
         r.pipe(fs.createWriteStream(filename));
-
-        console.log(`r`);
 
         r.on('end', function () {
             logger.info('end calling cloudinary', filename);
@@ -69,13 +68,13 @@ const AuphonicApi = {
                 logger.info('result',result);
                 resolve(result);
             }).catch(function (err) {
-                logger.info('error',err);
+                logger.info(err);
                 reject(err);
             });
         });
 
         r.on('error', function error(err) {
-            logger.info('error',err);
+            logger.info(err);
             reject(err);
         });
     }),
