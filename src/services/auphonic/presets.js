@@ -1,3 +1,3 @@
 module.exports = {
-  removeBackgroundNoise: 'LKAMk7qeNyVjDmeXhMPmyJ',
+  removeBackgroundNoise: 'NCVxgXyorv6vxEkxDMQDsV',
 };
