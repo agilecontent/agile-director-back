@@ -3,7 +3,7 @@ var fs = require('fs');
 var os = require('os');
 var path = require('path');
 var cloudinary = require('./../cloudinary');
-var logger = require('./../../config/logger');
+var logger = require('./../../../config/logger');
 
 // Credentials
 const username = 'marc.lopez@agilecontent.com';
