@@ -354,28 +354,23 @@ exports.createNewVideo = function getResults(req, res) {
         items,
     } = req.body;
 
-    const fakeUploadFunction = (uuid, output_basename) => {
-        AuphonicApi.getAudio(output_basename, uuid).then(function (result) {
-            logger.info('AuphonicApi.getAudio', result);
-            return result;
-        }).catch(function (err) {
-            logger.info('AuphonicApi.getAudio', err);
-        })
-    };
-
-    const preparedItems = items.map(item => {
+    var preparedItems = [];
+    Promise.map(items, function (item) {
         if (item.type === 'audio') {
             const {uuid, output_basename} = item;
-            const http = fakeUploadFunction(uuid, output_basename);
-            logger.info('HORACIO HTTP', http);
-
-            return uuid
-                ? Object.assign({}, item, {http})
-                : item;
+            AuphonicApi.getAudio(output_basename, uuid).then(function (http) {
+                return Promise.resolve(Object.assign({}, item, {http}));
+            });
         } else {
-            return item;
+            return Promise.resolve(item);
         }
-    });
+    })
+        .each(function (result) {
+            preparedItems.push(result);
+        })
+        .then(function (results) {
+            return preparedItems;
+        });
 
     logger.info('preparedItems', preparedItems);
 

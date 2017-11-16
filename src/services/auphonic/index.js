@@ -63,9 +63,7 @@ const AuphonicApi = {
         r.pipe(fs.createWriteStream(filename));
 
         r.on('end', function () {
-            logger.info('end calling cloudinary', filename);
             cloudinary.upload(filename, {typo: 'audio'}).then(function (result) {
-                logger.info('result',result);
                 resolve(result);
             }).catch(function (err) {
                 logger.info(err);
