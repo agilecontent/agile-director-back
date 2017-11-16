@@ -354,46 +354,36 @@ exports.createNewVideo = function getResults(req, res) {
         items,
     } = req.body;
 
-    var preparedItems = [];
     Promise.map(items, function (item) {
         if (item.type === 'audio') {
             const {uuid, output_basename} = item;
-            AuphonicApi.getAudio(output_basename, uuid).then(function (http) {
+            return AuphonicApi.getAudio(output_basename, uuid).then(function (http) {
+                console.log('aca');
                 return Promise.resolve(Object.assign({}, item, {http}));
             });
         } else {
             return Promise.resolve(item);
         }
-    })
-        .each(function (result) {
-            logger.info('preparedItems.push', result);
-            preparedItems.push(result);
-        })
-        .then(function (results) {
+    }).then(function (preparedItems) {
+        logger.info('preparedItems', preparedItems);
 
-            logger.info('preparedItems1', preparedItems);
-            logger.info('results', results);
+        // Create objects shape to match sezionAPi
+        //const inputMedias = utils.createInputMediasShape(preparedItems);
 
-            return preparedItems;
+        // Create custom template for each video configuration
+        /*sezionApi.createTemplate({name, description, templateObjectsList: preparedItems}).then((templateID) => {
+            const videoData = {
+                name,
+                description,
+                inputMedias,
+            };
+
+            sezionApi.newVideo(videoData, templateID)
+                .then(function (result) {
+                    return res.json(result);
+                });
         });
-
-    logger.info('preparedItems2', preparedItems);
-
-    // Create objects shape to match sezionAPi
-    //const inputMedias = utils.createInputMediasShape(preparedItems);
-
-    // Create custom template for each video configuration
-    /*sezionApi.createTemplate({name, description, templateObjectsList: preparedItems}).then((templateID) => {
-        const videoData = {
-            name,
-            description,
-            inputMedias,
-        };
-
-        sezionApi.newVideo(videoData, templateID)
-            .then(function (result) {
-                return res.json(result);
-            });
+        */
     });
-    */
+
 };
