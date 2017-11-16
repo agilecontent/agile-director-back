@@ -358,7 +358,6 @@ exports.createNewVideo = function getResults(req, res) {
         if (item.type === 'audio') {
             const {uuid, output_basename} = item;
             return AuphonicApi.getAudio(output_basename, uuid).then(function (http) {
-                console.log('aca');
                 return Promise.resolve(Object.assign({}, item, {http}));
             });
         } else {
@@ -368,10 +367,10 @@ exports.createNewVideo = function getResults(req, res) {
         logger.info('preparedItems', preparedItems);
 
         // Create objects shape to match sezionAPi
-        //const inputMedias = utils.createInputMediasShape(preparedItems);
+        const inputMedias = utils.createInputMediasShape(preparedItems);
 
         // Create custom template for each video configuration
-        /*sezionApi.createTemplate({name, description, templateObjectsList: preparedItems}).then((templateID) => {
+        sezionApi.createTemplate({name, description, templateObjectsList: preparedItems}).then((templateID) => {
             const videoData = {
                 name,
                 description,
@@ -383,7 +382,5 @@ exports.createNewVideo = function getResults(req, res) {
                     return res.json(result);
                 });
         });
-        */
     });
-
 };
