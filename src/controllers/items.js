@@ -366,13 +366,18 @@ exports.createNewVideo = function getResults(req, res) {
         }
     })
         .each(function (result) {
+            logger.info('preparedItems.push', result);
             preparedItems.push(result);
         })
         .then(function (results) {
+
+            logger.info('preparedItems1', preparedItems);
+            logger.info('results', results);
+
             return preparedItems;
         });
 
-    logger.info('preparedItems', preparedItems);
+    logger.info('preparedItems2', preparedItems);
 
     // Create objects shape to match sezionAPi
     //const inputMedias = utils.createInputMediasShape(preparedItems);
