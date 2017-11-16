@@ -44,7 +44,7 @@ const AuphonicApi = {
         });
     }),
     getAudio: (audioName, uuid) => new Promise((resolve, reject) => {
-        console.log(`getAudio ${audioName} ${uuid}`);
+
         if (!fs.existsSync(DEFAULT_OPTIONS.output)) {
             fs.mkdirSync(DEFAULT_OPTIONS.output);
         }
@@ -55,20 +55,29 @@ const AuphonicApi = {
             url: `${auphonicAPIUrl}/download/audio-result/${uuid}/${audioName}`,
         };
 
-        request(options).pipe(fs.createWriteStream(filename))
-            .on('end', function () {
-                logger.info('calling cloudinary', filename);
-                cloudinary.upload(filename, {typo: 'audio'}).then(function (result) {
-                    resolve(result);
-                }).catch(function (err) {
-                    logger.info(err);
-                    reject(err);
-                });
-            })
-            .on('error', function error(err) {
-                logger.info(err);
+        console.log(`getAudio:options ${options}`);
+
+        var r = request(options);
+
+        r.pipe(fs.createWriteStream(filename));
+
+        console.log(`r`);
+
+        r.on('end', function () {
+            logger.info('end calling cloudinary', filename);
+            cloudinary.upload(filename, {typo: 'audio'}).then(function (result) {
+                logger.info('result',result);
+                resolve(result);
+            }).catch(function (err) {
+                logger.info('error',err);
                 reject(err);
             });
+        });
+
+        r.on('error', function error(err) {
+            logger.info('error',err);
+            reject(err);
+        });
     }),
 };
 

@@ -365,8 +365,6 @@ exports.createNewVideo = function getResults(req, res) {
 
     const preparedItems = items.map(item => {
         if (item.type === 'audio') {
-            logger.info(`uuid ${item.uuid} - output_basename ${item.output_basename}`);
-
             const {uuid, output_basename} = item;
             const http = fakeUploadFunction(uuid, output_basename);
             logger.info('HORACIO HTTP', http);
@@ -379,7 +377,7 @@ exports.createNewVideo = function getResults(req, res) {
         }
     });
 
-    logger.info('HORACIO', preparedItems);
+    logger.info('preparedItems', preparedItems);
 
     // Create objects shape to match sezionAPi
     //const inputMedias = utils.createInputMediasShape(preparedItems);
