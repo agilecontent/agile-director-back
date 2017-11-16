@@ -366,8 +366,9 @@ exports.createNewVideo = function getResults(req, res) {
     const preparedItems = items.map(item => {
         if (item.type === 'audio') {
             const {uuid, output_basename} = item;
-            // TODO (Download filtered audio and upload it to Cloudinary)
             const http = fakeUploadFunction(uuid, output_basename);
+            logger.info('HORACIO HTTP', http);
+
             return uuid
                 ? Object.assign({}, item, {http})
                 : item;
@@ -376,11 +377,13 @@ exports.createNewVideo = function getResults(req, res) {
         }
     });
 
+    logger.info('HORACIO', preparedItems);
+
     // Create objects shape to match sezionAPi
-    const inputMedias = utils.createInputMediasShape(preparedItems);
+    //const inputMedias = utils.createInputMediasShape(preparedItems);
 
     // Create custom template for each video configuration
-    sezionApi.createTemplate({name, description, templateObjectsList: preparedItems}).then((templateID) => {
+    /*sezionApi.createTemplate({name, description, templateObjectsList: preparedItems}).then((templateID) => {
         const videoData = {
             name,
             description,
@@ -392,4 +395,5 @@ exports.createNewVideo = function getResults(req, res) {
                 return res.json(result);
             });
     });
+    */
 };
