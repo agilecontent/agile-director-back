@@ -56,7 +56,7 @@ const AuphonicApi = {
             url: `${auphonicAPIUrl}/download/audio-result/${uuid}/${audioName}`,
         };
 
-        logger.info(`getAudio:options ${option.url}`);
+        logger.info(`getAudio:options ${options.url}`);
 
         var r = request(options);
 
