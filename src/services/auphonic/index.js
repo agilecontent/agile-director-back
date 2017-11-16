@@ -44,7 +44,7 @@ const AuphonicApi = {
         });
     }),
     getAudio: (audioName, uuid) => new Promise((resolve, reject) => {
-
+        console.log(`getAudio ${audioName} ${uuid}`);
         if (!fs.existsSync(DEFAULT_OPTIONS.output)) {
             fs.mkdirSync(DEFAULT_OPTIONS.output);
         }
