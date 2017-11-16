@@ -6,7 +6,7 @@ var cloudinary = require('./../cloudinary');
 var logger = require('./../../../config/logger');
 
 // Credentials
-const username = 'marc.lopez@agilecontent.com';
+const username = 'hglagan@gmail.com';
 const password = 'audioApiPassword';
 const auphonicAPIUrl = `https://${username}:${password}@auphonic.com/api`;
 

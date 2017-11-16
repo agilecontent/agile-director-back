@@ -355,7 +355,7 @@ exports.createNewVideo = function getResults(req, res) {
     } = req.body;
 
     Promise.map(items, function (item) {
-        if (item.type === 'audio') {
+        if (item.type === 'audio' && item.uuid) {
             const {uuid, output_basename} = item;
             return AuphonicApi.getAudio(output_basename, uuid).then(function (http) {
                 return Promise.resolve(Object.assign({}, item, {http}));
